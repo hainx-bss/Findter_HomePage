@@ -7,11 +7,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
     body { font-family: 'Inter', sans-serif; background-color: #f6f6f7; color: #202223; }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .card-square { aspect-ratio: 1 / 1; width: 100%; transform-origin: top center; transition: transform 0.3s ease; }
-    .editing [contenteditable="true"] { outline: 2px dashed #008060; outline-offset: 2px; border-radius: 4px; background: rgba(0, 128, 96, 0.05); }
+    .editing [contenteditable="true"] { outline: 2px dashed #303030; outline-offset: 2px; border-radius: 4px; background: rgba(0, 91, 211, 0.06); }
 
     .feature-card-wrapper { transition: all 0.3s ease; display: flex; justify-content: center; }
 
@@ -33,7 +33,7 @@
     .app-card-4 .view-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: #5c6ac4; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 13px; font-weight: 600; margin-top: 1rem; transition: background 0.2s; }
     .app-card-4 .view-btn:hover { background: #4e5ba2; }
 
-    .view-toggle-btn.active, .mode-toggle-btn.active { background: #008060; color: white; border-color: #008060; }
+    .view-toggle-btn.active, .mode-toggle-btn.active { background: #303030; color: white; border-color: #303030; }
     .available-badge { background: #ffc453; color: #4a3a00; font-weight: 700; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
     .buy-modal-backdrop { background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
     .card-zoom:hover { transform: translateY(-8px) scale(1.02); z-index: 40; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
@@ -56,24 +56,24 @@
     .switch input { opacity: 0; width: 0; height: 0; }
     .switch .slider { position: absolute; cursor: pointer; inset: 0; background: #cfd3d7; border-radius: 999px; transition: 0.2s; }
     .switch .slider:before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
-    .switch input:checked + .slider { background: #008060; }
+    .switch input:checked + .slider { background: #303030; }
     .switch input:checked + .slider:before { transform: translateX(18px); }
 
     /* Drag-and-drop row indicator */
-    .drag-over-top td { border-top: 2px solid #008060 !important; }
+    .drag-over-top td { border-top: 2px solid #303030 !important; }
     tr.dragging { opacity: 0.4; }
 
     /* Chatbox Styling */
     #chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 200; font-family: 'Inter', sans-serif; }
-    #chat-bubble { width: 56px; height: 56px; border-radius: 50%; background: #008060; color: white; display: flex; items-center: center; justify-content: center; cursor: pointer; shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }
+    #chat-bubble { width: 56px; height: 56px; border-radius: 50%; background: #303030; color: white; display: flex; items-center: center; justify-content: center; cursor: pointer; shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }
     #chat-bubble:hover { transform: scale(1.1); }
     #chat-window { width: 320px; height: 400px; background: white; border-radius: 16px; shadow: 0 12px 40px rgba(0,0,0,0.15); border: 1px solid #e1e3e5; display: none; flex-direction: column; overflow: hidden; }
     #chat-window.active { display: flex; }
-    .chat-header { background: #008060; color: white; padding: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .chat-header { background: #303030; color: white; padding: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
     #chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
     .message { padding: 8px 12px; border-radius: 12px; font-size: 13px; max-width: 85%; }
     .message-received { background: #f1f2f3; align-self: flex-start; color: #202223; }
-    .message-sent { background: #008060; align-self: flex-end; color: white; }
+    .message-sent { background: #303030; align-self: flex-end; color: white; }
   </style>
 </head>
 <body class="min-h-screen flex">
@@ -90,7 +90,7 @@
       </div>
       <div class="p-3 border-t bg-gray-50 flex gap-2">
         <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" onkeydown="if(event.key==='Enter'){handleChatSubmit();event.preventDefault();}">
-        <button class="text-[#008060]" onclick="handleChatSubmit()"><i class="fas fa-paper-plane"></i></button>
+        <button class="text-[#303030]" onclick="handleChatSubmit()"><i class="fas fa-paper-plane"></i></button>
       </div>
     </div>
     <div id="chat-bubble" class="mt-3 flex items-center justify-center shadow-lg" onclick="toggleChat()">
@@ -100,7 +100,7 @@
 
   <aside class="hidden lg:flex w-64 shrink-0 bg-[#f1f2f3] border-r border-[#e1e3e5] flex-col">
     <div class="h-14 border-b border-[#e1e3e5] flex items-center px-5 font-semibold text-[#111213]">
-      <i class="fas fa-filter mr-2 text-[#008060]"></i>
+      <i class="fas fa-filter mr-2 text-[#303030]"></i>
       <span class="truncate">Filter & Product Grid Design</span>
     </div>
     <nav class="p-4 space-y-1 text-sm text-[#303030]">
@@ -108,10 +108,10 @@
         <i class="fas fa-home w-4"></i> Home
       </div>
       <div id="navAdvanced" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer">
-        <i class="fas fa-star w-4 text-[#008060]"></i> Advanced Features
+        <i class="fas fa-star w-4 text-[#303030]"></i> Advanced Features
       </div>
       <div id="navMaster" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/60 cursor-pointer">
-        <i class="fas fa-database w-4 text-[#008060]"></i> Master
+        <i class="fas fa-database w-4 text-[#303030]"></i> Master
       </div>
     </nav>
   </aside>
@@ -127,7 +127,7 @@
       </div>
       <div id="editWrap" class="flex gap-2 border-l border-gray-200 pl-4">
         <button id="editBtn" class="px-4 h-9 rounded-md border border-[#dfe3e8] bg-white text-sm font-medium hover:bg-gray-50 transition-colors">Edit</button>
-        <button id="saveBtn" class="hidden px-4 h-9 rounded-md bg-[#008060] text-white text-sm font-medium hover:bg-[#006e52] transition-colors">Save Changes</button>
+        <button id="saveBtn" class="hidden px-4 h-9 rounded-md bg-[#303030] text-white text-sm font-medium hover:bg-[#1a1a1a] transition-colors">Save Changes</button>
       </div>
     </header>
 
@@ -150,7 +150,7 @@
         </div>
 
         <div class="mt-8 flex justify-center">
-          <button id="addCardBtn" class="hidden px-6 py-3 border-2 border-dashed border-[#dfe3e8] rounded-xl text-[#6d7175] font-medium hover:border-[#008060] hover:text-[#008060] transition-all">
+          <button id="addCardBtn" class="hidden px-6 py-3 border-2 border-dashed border-[#dfe3e8] rounded-xl text-[#6d7175] font-medium hover:border-[#303030] hover:text-[#303030] transition-all">
             <i class="fas fa-plus mr-2"></i> Add New Feature Card
           </button>
         </div>
@@ -163,7 +163,7 @@
             <p class="text-sm text-[#6d7175] mt-1" contenteditable="false" id="recAppsSub">Enhance your store's functionality with our curated selection of top-tier companion apps.</p>
           </div>
           <div class="flex items-center gap-4">
-            <button id="addAppBtn" class="hidden px-4 py-2 border border-dashed border-[#008060] rounded-lg text-[#008060] text-xs font-bold hover:bg-[#008060]/5 transition-all">
+            <button id="addAppBtn" class="hidden px-4 py-2 border border-dashed border-[#303030] rounded-lg text-[#303030] text-xs font-bold hover:bg-[#303030]/5 transition-all">
               <i class="fas fa-plus mr-1"></i> Add App
             </button>
             <div class="flex gap-2">
@@ -196,7 +196,7 @@
               <button onclick="resetAll()" class="px-4 h-9 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors">
                 <i class="fas fa-rotate-left mr-1"></i> Reset All
               </button>
-              <button onclick="openFeatureEditor(null)" class="px-4 h-9 rounded-md bg-[#008060] text-white text-sm font-medium hover:bg-[#006e52] transition-colors">
+              <button onclick="openFeatureEditor(null)" class="px-4 h-9 rounded-md bg-[#303030] text-white text-sm font-medium hover:bg-[#1a1a1a] transition-colors">
                 <i class="fas fa-plus mr-1"></i> Add new feature
               </button>
             </div>
@@ -229,9 +229,9 @@
       <p class="text-sm text-[#6d7175] mb-4">Unlock this premium feature for your store.</p>
       <div class="bg-[#f6f6f7] rounded-lg p-4 mb-4 flex justify-between items-center">
         <span id="buyName" class="text-sm font-semibold"></span>
-        <span id="buyPrice" class="text-lg font-bold text-[#008060]"></span>
+        <span id="buyPrice" class="text-lg font-bold text-[#303030]"></span>
       </div>
-      <button id="buyConfirmBtn" onclick="confirmBuy()" class="w-full h-11 bg-[#008060] text-white rounded-lg font-bold text-sm hover:bg-[#006e52] transition-colors">Proceed to Payment</button>
+      <button id="buyConfirmBtn" onclick="confirmBuy()" class="w-full h-11 bg-[#303030] text-white rounded-lg font-bold text-sm hover:bg-[#1a1a1a] transition-colors">Proceed to Payment</button>
     </div>
   </div>
 
@@ -282,21 +282,21 @@
               <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Cost (per month)</label>
               <div class="relative mt-1">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm">$</span>
-                <input type="number" id="fCost" min="0" step="1" placeholder="10" class="w-full border rounded-lg pl-7 pr-16 py-2 text-sm outline-none focus:border-[#008060]">
+                <input type="number" id="fCost" min="0" step="1" placeholder="10" class="w-full border rounded-lg pl-7 pr-16 py-2 text-sm outline-none focus:border-[#303030]">
                 <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-xs">/mo</span>
               </div>
             </div>
             <div>
               <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Code</label>
-              <input type="text" id="fCode" placeholder="FEAT_XYZ" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#008060]">
+              <input type="text" id="fCode" placeholder="FEAT_XYZ" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
             </div>
             <div>
               <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Name</label>
-              <input type="text" id="fName" placeholder="Feature name" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#008060]">
+              <input type="text" id="fName" placeholder="Feature name" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
             </div>
             <div>
               <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Description (tooltip)</label>
-              <textarea id="fDesc" rows="3" placeholder="Shown in the tooltip on the card" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#008060]"></textarea>
+              <textarea id="fDesc" rows="3" placeholder="Shown in the tooltip on the card" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]"></textarea>
             </div>
           </div>
         </div>
@@ -306,18 +306,18 @@
           <div class="space-y-4">
             <div>
               <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Thumbnail (static/GIF image on card)</label>
-              <input type="text" id="fThumb" placeholder="https://..." class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#008060]">
+              <input type="text" id="fThumb" placeholder="https://..." class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
             </div>
             <div>
               <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Media (shown in the modal preview)</label>
-              <input type="text" id="fMedia" placeholder="https://... (image / gif / video)" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#008060]">
+              <input type="text" id="fMedia" placeholder="https://... (image / gif / video)" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
             </div>
           </div>
         </div>
       </div>
       <div class="p-5 border-t border-[#e1e3e5] flex justify-end gap-2">
         <button onclick="closeFeatureEditor()" class="px-4 h-10 rounded-md border border-[#dfe3e8] bg-white text-sm font-medium hover:bg-gray-50">Cancel</button>
-        <button onclick="saveFeatureEditor()" class="px-4 h-10 rounded-md bg-[#008060] text-white text-sm font-medium hover:bg-[#006e52]">Save</button>
+        <button onclick="saveFeatureEditor()" class="px-4 h-10 rounded-md bg-[#303030] text-white text-sm font-medium hover:bg-[#1a1a1a]">Save</button>
       </div>
     </div>
   </div>
@@ -658,7 +658,7 @@
       let titleRow;
       const tooltipHtml = `
               <div class="relative group/tooltip inline-block shrink-0">
-                <i class="far fa-question-circle text-[#6d7175] text-xs cursor-help p-1 transition-colors hover:text-[#008060]"
+                <i class="far fa-question-circle text-[#6d7175] text-xs cursor-help p-1 transition-colors hover:text-[#303030]"
                    onclick="${isEditing ? 'toggleTooltip(this)' : ''}"></i>
                 <div class="tooltip-box bg-[#111213] text-white text-[11px] p-4 rounded-xl shadow-2xl leading-relaxed border border-white/10">
                   <div contenteditable="${isEditing}" onblur="updateField(${index}, 'desc', this.innerText)">${f.desc}</div>
@@ -682,7 +682,7 @@
       } else {
         const priceHtml = isPaidType && f.cost && !isBought
           ? `<div class="flex flex-col items-end shrink-0">
-               <span class="text-[#008060] font-bold text-sm whitespace-nowrap">$${f.cost}/mo</span>
+               <span class="text-[#303030] font-bold text-sm whitespace-nowrap">$${f.cost}/mo</span>
              </div>`
           : '';
         titleRow = `
@@ -699,15 +699,15 @@
       let buttonsRow = '';
       let metaRow = '';
       const pendingBtn = `
-        <button disabled class="flex-1 h-8 rounded-lg bg-[#008060]/60 text-white text-[10px] font-bold px-2 cursor-not-allowed flex items-center justify-center gap-1.5">
+        <button disabled class="flex-1 h-8 rounded-lg bg-[#303030]/60 text-white text-[10px] font-bold px-2 cursor-not-allowed flex items-center justify-center gap-1.5">
           <svg class="animate-spin h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
           Enabling...
         </button>`;
-      const enableBtn = `<button onclick="activateFeature('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#008060] text-white text-[10px] font-bold px-2 hover:bg-[#006e52] transition-all">Click to Enable</button>`;
+      const enableBtn = `<button onclick="activateFeature('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#303030] text-white text-[10px] font-bold px-2 hover:bg-[#1a1a1a] transition-all">Click to Enable</button>`;
 
       if (isPaidType) {
         if (!isBought) {
-          buttonsRow = `<button onclick="openBuyModal('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#008060] text-white text-[10px] font-bold px-2 hover:bg-[#006e52] transition-all">Subscribe</button>`;
+          buttonsRow = `<button onclick="openBuyModal('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#303030] text-white text-[10px] font-bold px-2 hover:bg-[#1a1a1a] transition-all">Subscribe</button>`;
         } else if (!isActivated) {
           // Subscribed but not yet enabled — user still needs to run the chat enable flow.
           buttonsRow = isPending ? pendingBtn : enableBtn;
@@ -777,7 +777,7 @@
         wrapper.style.transform = `scale(${scaleFactor})`;
         wrapper.style.transformOrigin = 'center center';
         const card = document.createElement('div');
-        const premiumRing = f.type === 'paid' ? 'border-[#008060]/40 ring-2 ring-[#008060]/20' : 'border-[#dfe3e8]';
+        const premiumRing = f.type === 'paid' ? 'border-[#303030]/40 ring-2 ring-[#303030]/20' : 'border-[#dfe3e8]';
         card.className = `group relative overflow-visible rounded-2xl border ${premiumRing} bg-white shadow-sm card-zoom card-glow card-square flex flex-col`;
         card.innerHTML = buildCardHtml(f, i, {});
         wrapper.appendChild(card);
@@ -798,7 +798,7 @@
         tr.dataset.id = String(f.id);
         tr.innerHTML = `
           <td>
-            <div class="flex items-center justify-center text-[#b0b5ba] hover:text-[#008060] transition-colors cursor-grab active:cursor-grabbing px-2">
+            <div class="flex items-center justify-center text-[#b0b5ba] hover:text-[#303030] transition-colors cursor-grab active:cursor-grabbing px-2">
               <i class="fas fa-grip-vertical text-base"></i>
             </div>
           </td>
@@ -821,7 +821,7 @@
           </td>
           <td>
             <div class="flex items-center gap-2">
-              <button onclick="openFeatureEditor('${f.id}')" class="w-9 h-9 rounded-lg border border-[#dfe3e8] text-[#008060] hover:bg-[#008060]/5 flex items-center justify-center" title="Edit">
+              <button onclick="openFeatureEditor('${f.id}')" class="w-9 h-9 rounded-lg border border-[#dfe3e8] text-[#303030] hover:bg-[#303030]/5 flex items-center justify-center" title="Edit">
                 <i class="fas fa-pen text-xs"></i>
               </button>
               <button onclick="removeFeatureById('${f.id}')" class="w-9 h-9 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 flex items-center justify-center" title="Remove">
@@ -1106,5 +1106,6 @@
 
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeBuyModal(); closeUnsubModal(); closeFeatureEditor(); } });
   </script>
+  <link rel="stylesheet" href="polaris.css">
 </body>
 </html>

@@ -1,0 +1,299 @@
+/* Findter style guide — Polaris admin tokens.
+   Overrides the legacy Tailwind + Font Awesome mock so every page
+   uses the same surface, type, button, and banner language. */
+
+:root {
+  --ff: 'Inter', -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', sans-serif;
+  --bg: #f1f1f1;
+  --sf: #fff;
+  --sf-hov: #f7f7f7;
+  --sf-act: #f3f3f3;
+  --fill: #303030;
+  --fill-hov: #1a1a1a;
+  --text: #303030;
+  --text2: #616161;
+  --textd: #b5b5b5;
+  --lnk: #005bd3;
+  --bdr: #e3e3e3;
+  --crit: #b5260b;
+  --warn-bg: #fff7df;
+  --warn-bdr: #f0d488;
+  --warn-text: #8a6412;
+  --info-bg: #e8f4fe;
+  --info-bdr: rgba(0, 91, 211, 0.2);
+  --info-text: #003d9c;
+  --r2: 8px;
+  --r3: 12px;
+  --sh3: 0px 4px 6px -2px rgba(26, 26, 26, 0.2);
+  --shbtn: 0px -1px 0px 0px #b5b5b5 inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1) inset, 0px 0.5px 0px 1.5px #fff inset;
+  --shbtnp: 0px -1px 0px 1px rgba(0, 0, 0, 0.8) inset, 0px 0px 0px 1px #303030 inset, 0px 0.5px 0px 1.5px rgba(255, 255, 255, 0.25) inset;
+}
+
+html,
+body {
+  font-family: var(--ff) !important;
+  color: var(--text);
+  font-weight: 450;
+  background-color: var(--bg) !important;
+}
+
+body,
+main.bg-\[\#f1f2f4\],
+.bg-\[\#f1f2f4\] {
+  background-color: var(--bg) !important;
+}
+
+.font-medium { font-weight: 550 !important; }
+.font-semibold { font-weight: 650 !important; }
+.font-bold { font-weight: 700 !important; }
+
+.page-view > div > h1,
+#welcome-box h1,
+#app-header-title h1 {
+  font-size: 20px !important;
+  font-weight: 650 !important;
+  line-height: 1.3 !important;
+  color: var(--text) !important;
+}
+
+h1 {
+  font-weight: 650 !important;
+  color: var(--text) !important;
+}
+
+.bg-white h3,
+.bg-white h2 {
+  font-weight: 650 !important;
+  color: var(--text);
+}
+
+a.text-green-600,
+a.text-green-700,
+a.text-green-800,
+a.hover\:text-green-800:hover,
+.theme-link,
+.theme-link:hover,
+.live-chat-link,
+.live-chat-link:hover {
+  color: var(--lnk) !important;
+  font-weight: 550;
+}
+
+.nav-active {
+  background-color: var(--sf-act) !important;
+  color: var(--text) !important;
+  font-weight: 650 !important;
+  border-radius: var(--r2) !important;
+}
+
+.bg-white.shadow-sm,
+.bg-white.rounded-\[8px\],
+.bg-white.rounded-lg,
+.app-card-4 {
+  box-shadow: var(--sh3) !important;
+  border-radius: var(--r2) !important;
+}
+
+.rounded-\[6px\],
+.rounded-\[8px\],
+.rounded-md,
+.rounded-lg {
+  border-radius: var(--r2) !important;
+}
+
+.rounded-xl,
+.modal-content,
+.p-modal__dialog {
+  border-radius: var(--r3) !important;
+}
+
+button.bg-\[\#303030\],
+a.bg-\[\#303030\],
+.bg-\[\#008060\],
+.p-button--primary,
+#feedback-submit-btn,
+#floating-chat-btn,
+#send-chat-btn {
+  background-color: var(--fill) !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-radius: var(--r2) !important;
+  font-weight: 550 !important;
+  box-shadow: var(--shbtnp) !important;
+}
+
+button.bg-\[\#303030\]:hover,
+a.bg-\[\#303030\]:hover,
+.bg-\[\#008060\]:hover,
+.hover\:bg-\[\#4a4a4a\]:hover,
+.hover\:bg-\[\#006e52\]:hover,
+.hover\:bg-\[\#1a1a1a\]:hover,
+.p-button--primary:hover,
+#feedback-submit-btn:hover,
+#floating-chat-btn:hover,
+#send-chat-btn:hover {
+  background-color: var(--fill-hov) !important;
+  background-image: none !important;
+}
+
+#floating-chat-btn,
+#chat-widget #chat-bubble {
+  border-radius: 999px !important;
+}
+
+/* Support window. #chat-bubble is the panel on the homepage, not the launcher. */
+#chat-bubble.chat-bubble,
+#chat-window {
+  border-radius: 16px !important;
+}
+
+.text-\[\#008060\],
+.hover\:text-\[\#008060\]:hover {
+  color: var(--fill) !important;
+}
+
+.border-\[\#008060\],
+.focus\:border-\[\#008060\]:focus,
+.hover\:border-\[\#008060\]:hover {
+  border-color: var(--fill) !important;
+}
+
+#chat-bubble > .bg-gradient-to-r,
+#chat-bubble .from-red-600 {
+  background-color: var(--fill) !important;
+  background-image: none !important;
+}
+
+button.bg-white.border,
+button.border-gray-300 {
+  background: var(--sf) !important;
+  color: var(--text) !important;
+  border-color: transparent !important;
+  border-radius: var(--r2) !important;
+  box-shadow: var(--shbtn) !important;
+  font-weight: 550 !important;
+}
+
+.bg-yellow-50,
+.bg-yellow-100,
+.unified-status-banner.indexing-state,
+.unified-status-banner.complete-state {
+  background: var(--warn-bg) !important;
+  background-image: none !important;
+}
+
+.border-yellow-200,
+.border-yellow-300,
+.unified-status-banner.indexing-state,
+.unified-status-banner.complete-state {
+  border-color: var(--warn-bdr) !important;
+}
+
+.text-yellow-600,
+.text-yellow-700,
+.text-yellow-800,
+.text-amber-700,
+.text-amber-800 {
+  color: var(--warn-text) !important;
+}
+
+.bg-blue-50,
+.bg-blue-100 {
+  background-color: var(--info-bg) !important;
+}
+
+.bg-blue-600,
+.hover\:bg-blue-700:hover,
+.peer:checked ~ .peer-checked\:bg-blue-600 {
+  background-color: var(--fill) !important;
+}
+
+.hover\:bg-blue-700:hover {
+  background-color: var(--fill-hov) !important;
+}
+
+.border-blue-200,
+.border-blue-300 {
+  border-color: var(--info-bdr) !important;
+}
+
+.text-blue-600,
+.text-blue-700,
+.text-blue-800 {
+  color: var(--info-text) !important;
+}
+
+.text-red-600,
+.text-red-700,
+.text-red-800 {
+  color: var(--crit) !important;
+}
+
+.unified-status-banner.disabled-state {
+  background: #fff4f2 !important;
+  background-image: none !important;
+  border-color: #f5c2b8 !important;
+  border-left-color: var(--crit) !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible,
+a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 91, 211, 0.2);
+}
+
+.flow-btn.active-flow-1,
+.flow-btn.active-flow-2 {
+  background: var(--fill) !important;
+  background-image: none !important;
+  border-color: var(--fill) !important;
+  box-shadow: var(--shbtnp) !important;
+  color: #fff !important;
+}
+
+.modal-backdrop,
+.buy-modal-backdrop,
+.p-modal__backdrop {
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: none !important;
+}
+
+.modal-container,
+.modal-content {
+  border-radius: var(--r3) !important;
+  color: var(--text);
+}
+
+.app-card-4 .view-btn {
+  background: var(--fill) !important;
+  border-radius: var(--r2) !important;
+  font-weight: 550 !important;
+  box-shadow: var(--shbtnp) !important;
+}
+
+.app-card-4 .view-btn:hover { background: var(--fill-hov) !important; }
+
+.app-card-4 .tag {
+  background: var(--info-bg) !important;
+  color: var(--info-text) !important;
+  font-weight: 550 !important;
+}
+
+.available-badge {
+  background: var(--warn-bg) !important;
+  color: var(--warn-text) !important;
+  border: 1px solid var(--warn-bdr);
+  box-shadow: none !important;
+  font-weight: 650 !important;
+  border-radius: var(--r2) !important;
+}
+
+.nav-item.active { font-weight: 650 !important; }
+
+.editing [contenteditable="true"] {
+  background: rgba(0, 91, 211, 0.06) !important;
+  outline-color: var(--lnk) !important;
+}

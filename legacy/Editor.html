@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
         
         body { font-family: 'Inter', system_ui, sans-serif; }
         .product-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-1 overflow-hidden relative">
         <!-- Left Sidebar -->
         <div class="w-80 border-r bg-white flex flex-col">
             <div class="p-4 border-b">
@@ -158,18 +158,18 @@
             <div id="compatibilityPanelContent" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm"></div>
         </div>
 
-        <!-- Pricing Update Panel (docked next to App embeds sidebar) -->
-        <div id="pricingUpdatePanel" class="hidden w-80 border-r bg-white flex-col overflow-hidden shrink-0">
-            <div class="flex items-start justify-between gap-2 px-4 py-3.5 border-b shrink-0">
-                <div class="flex items-start gap-2">
-                    <i class="fa-solid fa-gift text-blue-500 mt-0.5"></i>
-                    <span class="font-semibold text-[15px] text-gray-900 leading-snug">Pricing update - Special discount only for you</span>
+        <!-- Pricing Update Panel (floating card, does not reserve layout space) -->
+        <div id="pricingUpdatePanel" class="hidden absolute top-4 left-[336px] z-10 w-80 rounded-xl border border-gray-200 shadow-lg bg-white flex-col overflow-hidden">
+            <div class="flex items-center justify-between gap-2 px-4 py-3.5 border-b shrink-0">
+                <div class="flex items-center gap-2">
+                    <div class="bg-gradient-to-br from-red-700 via-red-600 to-orange-500 text-white rounded-[6px] w-6 h-6 flex items-center justify-center text-[11px] shrink-0"><i class="fas fa-filter"></i></div>
+                    <span class="font-semibold text-[15px] text-gray-900">Findter Filter & Search</span>
                 </div>
-                <button onclick="closePricingUpdatePanel()" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0 mt-0.5">
+                <button onclick="closePricingUpdatePanel()" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div id="pricingUpdatePanelContent" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm"></div>
+            <div id="pricingUpdatePanelContent" class="p-4 space-y-3 text-sm"></div>
         </div>
 
         <!-- Main Store Area -->
@@ -484,49 +484,20 @@
 
         function generatePricingUpdatePanelContent() {
             return `
-                <div class="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
-                    <i class="fa-solid fa-circle-info text-blue-500 text-xs mt-0.5"></i>
-                    <p class="text-xs font-medium text-blue-800 leading-relaxed">We've kept Findter <strong>free for almost a year</strong>, serving <strong>2,000+ stores</strong>. With this growth, we now introduce paid plans to cover costs and keep improving the app.</p>
-                </div>
+                <p class="text-xs font-medium text-gray-800 leading-relaxed">We have an important update about <strong>Findter's pricing changes</strong>.</p>
 
-                <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-3">
-                    <div>
-                        <p class="text-gray-700 leading-relaxed">✓ <strong>Special offer</strong>: discount code <strong>THANKYOU</strong> if you pay during:</p>
-                        <div class="mt-1.5 space-y-1 pl-4">
-                            <p class="text-xs text-gray-600">31 Jul - 4 Aug: <strong>45%</strong> off monthly / <strong>50%</strong> off yearly</p>
-                            <p class="text-xs text-gray-600">5 - 6 Aug: <strong>35%</strong> off monthly / <strong>40%</strong> off yearly</p>
-                            <p class="text-xs text-gray-600">7 Aug: <strong>25%</strong> off monthly / <strong>30%</strong> off yearly</p>
-                        </div>
-                    </div>
-                    <div class="pt-2 border-t border-gray-200">
-                        <p class="text-gray-700 leading-relaxed">✓ <strong>What changes</strong>: from 4th Aug, 2026, if you don't upgrade, your catalog will be <strong>cut down until it reaches</strong> <strong>300 products</strong> (free plan limit)</p>
+                <div class="bg-red-50 border border-red-200 rounded-lg px-3 py-3">
+                    <div class="flex items-start gap-2">
+                        <span class="text-xs mt-0.5">⚠️</span>
+                        <p class="text-xs font-medium text-red-700 leading-relaxed">Check this now to avoid your products being cut from filters once the new plan takes effect.</p>
                     </div>
                 </div>
-
-                <div>
-                    <p class="font-medium text-gray-900 mb-2">Guide for apply discount code:</p>
-                    <div class="space-y-2">
-                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
-                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">1</span>
-                            <p class="text-gray-700">Go to <strong class="font-semibold text-gray-900">Pricing Tab</strong></p>
-                        </div>
-                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
-                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">2</span>
-                            <p class="text-gray-700">Select plan that fit your store</p>
-                        </div>
-                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
-                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">3</span>
-                            <p class="text-gray-700">Click "Have a discount code?"</p>
-                        </div>
-                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
-                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">4</span>
-                            <p class="text-gray-700">Input the discount code</p>
-                        </div>
-                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
-                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">5</span>
-                            <p class="text-gray-700">Proceed to payment</p>
-                        </div>
-                    </div>
+                <div class="flex items-start gap-1.5">
+                    <i class="fa-solid fa-circle-info text-gray-400 text-xs mt-0.5"></i>
+                    <p class="text-xs text-gray-500 leading-relaxed">This announcement is only shown in the theme editor.</p>
+                </div>
+                <div class="text-center">
+                    <span onclick="goAndDismissPricingUpdate()" class="live-chat-link text-sm">See detail and Dismiss Forever</span>
                 </div>
             `;
         }
@@ -544,6 +515,11 @@
             const panel = document.getElementById('pricingUpdatePanel');
             panel.classList.add('hidden');
             panel.classList.remove('flex');
+        }
+
+        function goAndDismissPricingUpdate() {
+            window.open('index.html', '_blank');
+            closePricingUpdatePanel();
         }
 
         function goToLiveChat() {
@@ -642,5 +618,6 @@
             setupAccordion('search-suggestion-header', 'search-suggestion-content', 'search-suggestion-icon');
         };
     </script>
+    <link rel="stylesheet" href="polaris.css">
 </body>
 </html>

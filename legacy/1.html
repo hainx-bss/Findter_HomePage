@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
         body { font-family: 'Inter', sans-serif; }
         .sidebar-scrollbar::-webkit-scrollbar { width: 6px; }
         .sidebar-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
@@ -300,7 +300,7 @@
                         <i class="fas fa-bars text-sm"></i>
                     </button>
                     <div class="flex items-center gap-2 app-header-clickable px-2 -mx-2 py-1 rounded-md" id="app-header-title" data-page="home">
-                    <div class="bg-[#bd2130] text-white rounded-[4px] w-[22px] h-[22px] flex items-center justify-center text-[11px]"><i class="fas fa-filter"></i></div>
+                    <div class="bg-[#303030] text-white rounded-[4px] w-[22px] h-[22px] flex items-center justify-center text-[11px]"><i class="fas fa-filter"></i></div>
                     <h1 class="font-semibold text-[18px] text-[#303030]">Findter Filter & Search</h1>
                     </div>
                 </div>
@@ -641,7 +641,7 @@
 
     <!-- Floating Chat Icon -->
     <div class="fixed bottom-6 right-6 z-50">
-        <button id="floating-chat-btn" class="w-[50px] h-[50px] bg-[#bd2130] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-red-800 transition-colors relative">
+        <button id="floating-chat-btn" class="w-[50px] h-[50px] bg-[#303030] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-red-800 transition-colors relative">
             <i class="fas fa-search text-xl"></i>
             <span id="chat-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-600 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">1</span>
         </button>
@@ -2126,5 +2126,6 @@
         console.log('Ready!');
     });
     </script>
+    <link rel="stylesheet" href="polaris.css">
 </body>
 </html>
