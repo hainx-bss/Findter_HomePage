@@ -3,41 +3,41 @@
    uses the same surface, type, button, and banner language. */
 
 :root {
-  --ff: 'Inter', -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', sans-serif;
-  --bg: #f1f1f1;
-  --sf: #fff;
-  --sf-hov: #f7f7f7;
-  --sf-act: #f3f3f3;
-  --fill: #303030;
-  --fill-hov: #1a1a1a;
-  --text: #303030;
-  --text2: #616161;
-  --textd: #b5b5b5;
-  --lnk: #005bd3;
-  --bdr: #e3e3e3;
-  --crit: #b5260b;
-  --warn-bg: #fff7df;
-  --warn-bdr: #f0d488;
-  --warn-text: #8a6412;
-  --info-bg: #e8f4fe;
-  --info-bdr: rgba(0, 91, 211, 0.2);
-  --info-text: #003d9c;
-  --r2: 8px;
-  --r3: 12px;
-  --sh3: 0px 4px 6px -2px rgba(26, 26, 26, 0.2);
-  --shbtn: 0px -1px 0px 0px #b5b5b5 inset, 0px 0px 0px 1px rgba(0, 0, 0, 0.1) inset, 0px 0.5px 0px 1.5px #fff inset;
-  --shbtnp: 0px -1px 0px 1px rgba(0, 0, 0, 0.8) inset, 0px 0px 0px 1px #303030 inset, 0px 0.5px 0px 1.5px rgba(255, 255, 255, 0.25) inset;
+  --ff: var(--p-font-family-sans);
+  --bg: var(--p-color-bg);
+  --sf: var(--p-color-bg-surface);
+  --sf-hov: var(--p-color-bg-surface-hover);
+  --sf-act: var(--p-color-bg-surface-active);
+  --fill: var(--p-color-bg-fill-brand);
+  --fill-hov: var(--p-color-bg-fill-brand-hover);
+  --text: var(--p-color-text);
+  --text2: var(--p-color-text-secondary);
+  --textd: var(--p-color-text-disabled);
+  --lnk: var(--p-color-text-link);
+  --bdr: var(--p-color-border);
+  --crit: var(--p-color-text-critical);
+  --warn-bg: var(--p-color-bg-surface-caution);
+  --warn-bdr: var(--p-color-border-caution);
+  --warn-text: var(--p-color-text-warning);
+  --info-bg: var(--p-color-bg-surface-info);
+  --info-bdr: var(--p-color-border-info);
+  --info-text: var(--p-color-text-info);
+  --r2: var(--p-border-radius-200);
+  --r3: var(--p-border-radius-300);
+  --sh3: var(--p-shadow-100);
+  --shbtn: var(--p-shadow-button);
+  --shbtnp: var(--p-shadow-button-primary);
 }
 
 html,
 body {
   font-family: var(--ff) !important;
   color: var(--text);
-  font-weight: 450;
-  background-color: var(--bg) !important;
+  font-weight: var(--p-font-weight-regular);
+  background-color: var(--sh-bg) !important;
 }
 
-body,
+.sh-scroll,
 main.bg-\[\#f1f2f4\],
 .bg-\[\#f1f2f4\] {
   background-color: var(--bg) !important;
@@ -47,12 +47,29 @@ main.bg-\[\#f1f2f4\],
 .font-semibold { font-weight: 650 !important; }
 .font-bold { font-weight: 700 !important; }
 
-.page-view > div > h1,
+.page-view > div > h1 {
+  font-size: var(--p-font-size-500) !important;
+  font-weight: var(--p-font-weight-semibold) !important;
+  line-height: var(--p-font-line-height-600) !important;
+  letter-spacing: var(--p-font-letter-spacing-dense);
+  color: var(--text) !important;
+}
+
 #welcome-box h1,
-#app-header-title h1 {
-  font-size: 20px !important;
-  font-weight: 650 !important;
-  line-height: 1.3 !important;
+.ft-welcome__title {
+  font-size: clamp(24px, 3vw, 30px) !important;
+  font-weight: var(--p-font-weight-bold) !important;
+  line-height: 1.2 !important;
+  letter-spacing: var(--p-font-letter-spacing-denser);
+  color: var(--text) !important;
+}
+
+#app-header-title h1,
+.sh-top h1 {
+  font-size: var(--p-font-size-325) !important;
+  font-weight: var(--p-font-weight-regular) !important;
+  line-height: var(--p-font-line-height-500) !important;
+  letter-spacing: 0;
   color: var(--text) !important;
 }
 
@@ -90,8 +107,10 @@ a.hover\:text-green-800:hover,
 .bg-white.rounded-\[8px\],
 .bg-white.rounded-lg,
 .app-card-4 {
-  box-shadow: var(--sh3) !important;
-  border-radius: var(--r2) !important;
+  background: var(--p-color-bg-surface) !important;
+  box-shadow: var(--p-shadow-100) !important;
+  border-radius: var(--p-border-radius-300) !important;
+  border-color: transparent !important;
 }
 
 .rounded-\[6px\],
@@ -112,7 +131,6 @@ a.bg-\[\#303030\],
 .bg-\[\#008060\],
 .p-button--primary,
 #feedback-submit-btn,
-#floating-chat-btn,
 #send-chat-btn {
   background-color: var(--fill) !important;
   background-image: none !important;
@@ -130,15 +148,19 @@ a.bg-\[\#303030\]:hover,
 .hover\:bg-\[\#1a1a1a\]:hover,
 .p-button--primary:hover,
 #feedback-submit-btn:hover,
-#floating-chat-btn:hover,
 #send-chat-btn:hover {
   background-color: var(--fill-hov) !important;
   background-image: none !important;
 }
 
-#floating-chat-btn,
-#chat-widget #chat-bubble {
+#floating-chat-btn {
   border-radius: 999px !important;
+  background-color: #9b2423 !important;
+  box-shadow: 0 4px 14px #0004 !important;
+}
+
+#floating-chat-btn:hover {
+  background-color: #7e1d1c !important;
 }
 
 /* Support window. #chat-bubble is the panel on the homepage, not the launcher. */
@@ -160,7 +182,7 @@ a.bg-\[\#303030\]:hover,
 
 #chat-bubble > .bg-gradient-to-r,
 #chat-bubble .from-red-600 {
-  background-color: var(--fill) !important;
+  background-color: #9b2423 !important;
   background-image: none !important;
 }
 

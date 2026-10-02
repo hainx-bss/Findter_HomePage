@@ -17,7 +17,7 @@ export function renderMaster() {
 function renderMasterTabs() {
   const masterTabsEl = document.getElementById('master-tabs');
   if (!masterTabsEl) return;
-  masterTabsEl.innerHTML = '<button type="button" class="master-tab-btn px-4 py-2 text-[13px] font-semibold border-b-2 border-[#303030] text-[#303030]">Highlight Features</button>';
+  masterTabsEl.innerHTML = '<button type="button" class="master-tab-btn mt-tab" aria-selected="true">Highlight Features</button>';
 }
 
 function renderHighlightList() {

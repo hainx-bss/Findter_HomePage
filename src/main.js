@@ -1,6 +1,9 @@
+import '../styles/tokens.css';
 import '../styles/tailwind.css';
 import '../styles/app.css';
 import '../styles/polaris.css';
+import '../styles/admin-shell.css';
+import '../styles/ui.css';
 import './services/highlightStore.js';
 import './app/appToggle.js';
 import { bindStorageSync, loadPersistedState } from './app/store.js';

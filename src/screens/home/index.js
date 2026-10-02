@@ -19,7 +19,7 @@ import { mountMasterShortcut } from '../master/index.js';
 export function renderHome() {
   return `
                 <div id="page-home" class="page-view active">
-                    <div class="max-w-[1040px] mx-auto">
+                    <div class="app-page">
                         ${welcomeBoxHtml}
                         <div id="homepage-grid" class="homepage-grid">
                             <div class="homepage-column homepage-left">

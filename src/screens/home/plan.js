@@ -4,9 +4,9 @@ export const PLAN_USAGE = { used: 1595, limit: 50000 };
 export const PLAN_USAGE_WITHIN = 1595;
 export const PLAN_USAGE_OVER = 52000;
 
-const STATUS_PILL_INACTIVE = 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600 whitespace-nowrap';
-const STATUS_PILL_ACTIVE = 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-green-200 bg-white text-[11px] font-semibold text-green-700 whitespace-nowrap';
-const STATUS_PILL_WARNING = 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-yellow-200 bg-yellow-100 text-[11px] font-semibold text-[#303030] whitespace-nowrap';
+const STATUS_PILL_INACTIVE = 'p-badge';
+const STATUS_PILL_ACTIVE = 'p-badge p-badge--success';
+const STATUS_PILL_WARNING = 'p-badge p-badge--warning';
 
 let trialDaysLeft = 1;
 
@@ -50,9 +50,7 @@ export function renderPlanExpiry() {
   const ended = trialDaysLeft <= 0;
   label.textContent = ended ? 'Expired' : 'Expires';
   value.textContent = formatPlanDate(expiry);
-  value.className = ended
-    ? 'inline-flex items-center px-2.5 py-1 rounded-md border border-yellow-300 bg-yellow-50 text-[11px] font-semibold tabular-nums text-[#303030]'
-    : 'inline-flex items-center px-2.5 py-1 rounded-md border border-[#e3e3e3] bg-white text-[11px] font-semibold tabular-nums text-[#303030]';
+  value.className = ended ? 'p-badge p-badge--warning' : 'p-badge';
 }
 
 export function renderPlanUsage() {
@@ -98,8 +96,8 @@ export function updateFindterStatus() {
 
   if (statusAppEmbed) {
     statusAppEmbed.className = appLive
-      ? 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-green-200 bg-white text-[11px] font-semibold text-green-700'
-      : 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600';
+      ? 'p-badge p-badge--success'
+      : 'p-badge';
     statusAppEmbed.innerHTML = appLive
       ? '<span class="w-2 h-2 rounded-full bg-green-500"></span>Active'
       : '<span class="w-2 h-2 rounded-full bg-gray-400"></span>Inactive';
@@ -107,15 +105,15 @@ export function updateFindterStatus() {
 
   if (statusSearchSuggestion) {
     statusSearchSuggestion.className = suggestionLive
-      ? 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-green-200 bg-white text-[11px] font-semibold text-green-700'
-      : 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600';
+      ? 'p-badge p-badge--success'
+      : 'p-badge';
     statusSearchSuggestion.innerHTML = suggestionLive
       ? '<span class="w-2 h-2 rounded-full bg-green-500"></span>Active'
       : '<span class="w-2 h-2 rounded-full bg-gray-400"></span>Inactive';
   }
 
   if (statusAppPlan) {
-    statusAppPlan.className = 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-blue-200 bg-white text-[11px] font-semibold text-blue-700';
+    statusAppPlan.className = 'p-badge p-badge--info';
     statusAppPlan.innerHTML = '<span class="w-2 h-2 rounded-full bg-blue-500"></span>Trial';
   }
   renderPlanExpiry();

@@ -13,7 +13,11 @@ export function navigateToPage(pageId) {
   AppState.currentPage = pageId;
   document.querySelectorAll('[data-page]').forEach((item) => {
     item.classList.remove('nav-active');
-    if (item.getAttribute('data-page') === pageId) item.classList.add('nav-active');
+    if (item.classList.contains('sh-item')) item.removeAttribute('aria-current');
+    if (item.getAttribute('data-page') === pageId) {
+      item.classList.add('nav-active');
+      if (item.classList.contains('sh-item')) item.setAttribute('aria-current', 'page');
+    }
   });
   if (pageId === 'master') renderMasterPage();
   else if (pageId !== 'highlight-feature') renderSubPageContent(pageId);
