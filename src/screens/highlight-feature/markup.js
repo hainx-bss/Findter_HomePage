@@ -1,6 +1,6 @@
 export const highlightFeatureHtml = `
                 <div id="page-highlight-feature" class="page-view">
-                    <div class="max-w-[1040px] mx-auto">
+                    <div class="app-page">
                         <header class="hf-page-head">
                             <h1>Discover Findter</h1>
                             <p>Look through the features below while your store data is collected.</p>

@@ -4,20 +4,20 @@ export const statusCardHtml = `
                                     <div class="space-y-3">
                                         <div class="flex items-center justify-between gap-3 text-[13px] text-[#303030]">
                                             <span class="font-medium">Plan</span>
-                                            <span id="status-app-plan" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-blue-200 bg-white text-[11px] font-semibold text-blue-700">
+                                            <span id="status-app-plan" class="p-badge p-badge--info">
                                                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                                                 Trial
                                             </span>
                                         </div>
                                         <div id="status-plan-expiry-row" class="flex items-center justify-between gap-3 text-[13px] text-[#303030]">
                                             <span id="status-plan-expiry-label" class="font-medium">Expires</span>
-                                            <span id="status-plan-expiry" class="inline-flex items-center px-2.5 py-1 rounded-md border border-[#e3e3e3] bg-white text-[11px] font-semibold tabular-nums text-[#303030]">29/09/2026</span>
+                                            <span id="status-plan-expiry" class="p-badge">29/09/2026</span>
                                         </div>
                                         <div id="plan-usage" class="flex items-center justify-between gap-3 text-[13px] text-[#303030]">
                                             <span id="plan-usage-label" class="font-medium">Products</span>
                                             <span class="flex items-center gap-2 shrink-0">
                                                 <span id="plan-usage-count" class="hidden font-semibold tabular-nums text-[#303030] whitespace-nowrap">1,595 / 50,000</span>
-                                                <span id="plan-usage-status" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600 whitespace-nowrap">
+                                                <span id="plan-usage-status" class="p-badge">
                                                     <span id="plan-usage-dot" class="w-2 h-2 rounded-full bg-gray-400"></span>
                                                     <span id="plan-usage-status-text">Collecting data</span>
                                                 </span>
@@ -25,14 +25,14 @@ export const statusCardHtml = `
                                         </div>
                                         <div class="flex items-center justify-between text-[13px] text-[#303030]">
                                             <span class="font-medium">App Embed</span>
-                                            <span id="status-app-embed" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600">
+                                            <span id="status-app-embed" class="p-badge">
                                                 <span class="w-2 h-2 rounded-full bg-gray-400"></span>
                                                 Inactive
                                             </span>
                                         </div>
                                         <div class="flex items-center justify-between text-[13px] text-[#303030]">
                                             <span class="font-medium">Search Suggestion</span>
-                                            <span id="status-search-suggestion" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600">
+                                            <span id="status-search-suggestion" class="p-badge">
                                                 <span class="w-2 h-2 rounded-full bg-gray-400"></span>
                                                 Inactive
                                             </span>
