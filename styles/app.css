@@ -1,0 +1,427 @@
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
+        /* Hard safety net: no element anywhere is ever allowed to force the
+           page wider than the viewport. This is what actually prevents the
+           "zoomed in / misaligned" mobile bug, regardless of what individual
+           component might be too wide. */
+        html {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+        body { font-family: 'Inter', sans-serif; max-width: 100vw; overflow-x: hidden; }
+        .sidebar-scrollbar::-webkit-scrollbar { width: 6px; }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .homepage-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .homepage-column {
+            display: contents;
+        }
+        @media (min-width: 1024px) {
+            .homepage-grid {
+                grid-template-columns: 633.32px 316.66px;
+                column-gap: 16px;
+                row-gap: 20px;
+            }
+            .homepage-column {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                min-width: 0;
+            }
+            .homepage-left {
+                grid-column: 1 / span 1;
+            }
+            .homepage-right {
+                grid-column: 2 / span 1;
+            }
+            .homepage-left > * {
+                box-sizing: border-box;
+                width: 633.32px;
+                max-width: 633.32px;
+                min-width: 633.32px;
+                padding: 8px;
+            }
+            .homepage-right > * {
+                box-sizing: border-box;
+                width: 316.66px;
+                max-width: 316.66px;
+                min-width: 316.66px;
+                padding: 8px;
+            }
+            .homepage-grid.indexing-mode {
+                grid-template-columns: 1fr;
+                justify-content: center;
+            }
+            .homepage-grid.indexing-mode .homepage-right {
+                display: none;
+            }
+            .homepage-grid.indexing-mode .homepage-left > * {
+                width: 700px;
+                max-width: 700px;
+                min-width: 0;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+        #unified-status-banner.indexing-centered {
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (min-width: 1024px) {
+            #unified-status-banner:not(.indexing-centered),
+            #indexing-banner-container {
+                max-width: 965.98px;
+            }
+        }
+        .app-rec-card {
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            .app-rec-card {
+                width: calc((100% - 12px) / 2);
+            }
+        }
+        /* The sidebar is a fixed overlay drawer, not a flex sibling, so
+           opening it never pushes or resizes the main app content. */
+        aside {
+            position: fixed;
+            top: 3.5rem;
+            left: 0;
+            bottom: 0;
+            z-index: 40;
+            transform: translateX(0);
+        }
+        .sidebar-collapsed aside {
+            transform: translateX(-100%);
+        }
+        #sidebar-overlay {
+            display: none;
+        }
+        body:not(.sidebar-collapsed) #sidebar-overlay {
+            display: block;
+        }
+        /* Mobile "more" dropdown for the header's dev/test buttons */
+        @media (max-width: 1023px) {
+            #header-dev-menu.mobile-menu-open {
+                display: flex !important;
+                position: absolute;
+                right: 0;
+                top: 2.75rem;
+                width: 16rem;
+                flex-direction: column;
+                align-items: stretch;
+                background: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+                padding: 0.75rem;
+                gap: 0.5rem;
+                z-index: 30;
+            }
+            #header-dev-menu.mobile-menu-open .relative {
+                width: 100%;
+            }
+            #header-dev-menu.mobile-menu-open #warning-trial-menu {
+                position: static;
+                width: 100%;
+                margin-top: 0.5rem;
+                box-shadow: none;
+            }
+        }
+        .step-checkbox {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .congrat-message {
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content {
+            animation: slideInUp 0.3s ease;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes guideAttention {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.03) translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+            30% { transform: scale(1.02) translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.12); }
+            50% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+        .guide-attention-animation {
+            animation: guideAttention 1s ease-out forwards;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+        .nav-active {
+            background-color: #d1d5db !important;
+            color: #303030 !important;
+            font-weight: 600 !important;
+        }
+        .modal-wrapper {
+            z-index: 9999;
+        }
+        /* Welcome modal — current Polaris admin chrome (dark primary, 12px dialog) */
+        #welcome-gate-modal .p-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        #welcome-gate-modal .p-modal__dialog {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 20px 20px -8px rgba(26, 26, 26, 0.28), 0 0 1px rgba(0, 0, 0, 0.2);
+            width: min(960px, calc(100% - 32px));
+            max-height: calc(100vh - 64px);
+            overflow: hidden;
+            outline: none;
+        }
+        #welcome-gate-modal .p-modal__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 8px 12px 16px;
+            border-bottom: 1px solid #e3e3e3;
+            flex-shrink: 0;
+        }
+        #welcome-gate-modal .p-modal__title {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 650;
+            line-height: 20px;
+            color: #303030;
+        }
+        #welcome-gate-modal .p-modal__close {
+            width: 32px;
+            height: 32px;
+            border: 0;
+            border-radius: 8px;
+            background: transparent;
+            color: #4a4a4a;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        #welcome-gate-modal .p-modal__close:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        #welcome-gate-modal .p-modal__close:focus-visible {
+            outline: 2px solid #005bd3;
+            outline-offset: 1px;
+        }
+        #welcome-gate-modal .p-modal__body {
+            background: #f1f1f1;
+            min-height: 0;
+        }
+        #welcome-gate-modal .p-modal__footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 12px 16px;
+            border-top: 1px solid #e3e3e3;
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+        #welcome-gate-modal .p-button--primary {
+            background: #303030;
+            color: #ffffff;
+            border: 0;
+            border-radius: 8px;
+            min-height: 32px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 550;
+            line-height: 20px;
+            cursor: pointer;
+            box-shadow: inset 0 -1px 0 1px rgba(0, 0, 0, 0.8), inset 0 0 0 1px #303030, inset 0 0.5px 0 1.5px rgba(255, 255, 255, 0.25);
+        }
+        #welcome-gate-modal .p-button--primary:hover {
+            background: #1a1a1a;
+        }
+        #welcome-gate-modal .p-button--primary:focus-visible {
+            outline: 2px solid #005bd3;
+            outline-offset: 2px;
+        }
+        #welcome-gate-modal .p-carousel-nav {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #e3e3e3;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #303030;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        }
+        #welcome-gate-modal .p-carousel-nav:hover {
+            background: #f7f7f7;
+        }
+        #welcome-gate-modal .p-carousel-nav:focus-visible {
+            outline: 2px solid #005bd3;
+            outline-offset: 2px;
+        }
+        @media (max-width: 639px) {
+            #welcome-gate-modal .p-button--primary {
+                min-height: 44px;
+            }
+        }
+        .chat-bubble {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            width: 340px;
+            max-width: calc(100vw - 32px);
+            max-height: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10000;
+            animation: chatSlideUp 0.3s ease;
+        }
+        @keyframes chatSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-bubble.active {
+            display: flex;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-custom {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .btn-disabled-overlay {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-disabled-overlay::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.3);
+            pointer-events: none;
+        }
+        .page-view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .page-view.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .empty-state-illustration {
+            opacity: 0.05;
+        }
+        .app-header-clickable {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .app-header-clickable:hover {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+        .flow-btn {
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .flow-btn.active-flow-1 {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border-color: #dc2626;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+        }
+        .flow-btn.active-flow-2 {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .flow-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+        .unified-status-banner {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left-width: 4px;
+            border-left-style: solid;
+        }
+        .unified-status-banner.indexing-state {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fcd34d;
+        }
+        .unified-status-banner.complete-state {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fcd34d;
+        }
+        .unified-status-banner.disabled-state {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #fca5a5;
+        }
+        .theme-live-badge,
+        .theme-status-badge {
+            display: inline-flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 550;
+            line-height: 16px;
+            white-space: nowrap;
+            cursor: default;
+            pointer-events: none;
+        }
+        .theme-live-badge,
+        .theme-status-badge--success {
+            background: #cdfee1;
+            color: #0c5132;
+        }
+        .theme-live-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: livePulse 2s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
