@@ -11,6 +11,7 @@ import { render as renderAnalytics } from '../screens/analytics/index.js';
 import { render as renderAdvanced } from '../screens/advanced/index.js';
 import { renderMaster } from '../screens/master/index.js';
 import { renderHighlightFeature } from '../screens/highlight-feature/index.js';
+import { highlightMediaModalHtml } from '../screens/highlight-feature/markup.js';
 import { restrictedHtml } from '../modals/markup/restricted.js';
 import { themePickerHtml } from '../modals/markup/themePicker.js';
 import { enableEmbedHtml } from '../modals/markup/enableEmbed.js';
@@ -34,6 +35,7 @@ export function renderShell() {
           ${renderAdvanced()}
           ${renderMaster()}
           ${renderHighlightFeature()}
+          ${highlightMediaModalHtml}
         </div>
       </main>
     </div>

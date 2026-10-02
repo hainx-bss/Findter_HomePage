@@ -4,11 +4,16 @@ import { canDismissEditorModal, closeEditorModal, isEditorModalOpen } from './En
 import { closeRestrictedModalAndGoHome, isRestrictedModalOpen } from './AccessRestricted.js';
 import { closeThemePickerModal } from './ThemePicker.js';
 import { dismissWelcomeGate, isWelcomeGateOpen } from './WelcomeGate.js';
+import { closeHighlightMediaModal, isHighlightMediaOpen } from '../services/highlightMedia.js';
 import { isModalOpen } from './modal.js';
 
 export function mountKeyboard() {
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (isHighlightMediaOpen()) {
+      closeHighlightMediaModal();
+      return;
+    }
     if (isWelcomeGateOpen()) {
       dismissWelcomeGate('esc');
       return;
