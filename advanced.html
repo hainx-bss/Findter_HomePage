@@ -14,6 +14,11 @@
     .editing [contenteditable="true"] { outline: 2px dashed #303030; outline-offset: 2px; border-radius: 4px; background: rgba(0, 91, 211, 0.06); }
 
     .feature-card-wrapper { transition: all 0.3s ease; display: flex; justify-content: center; }
+    .feature-card-wrapper.is-highlight-focus .card-square {
+      outline: 3px solid #005bd3;
+      outline-offset: 4px;
+      box-shadow: 0 0 0 6px rgba(0, 91, 211, 0.2);
+    }
 
     /* Modal Styling */
     .modal-backdrop { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); }
@@ -774,6 +779,8 @@
       visible.forEach(({ f, i }) => {
         const wrapper = document.createElement('div');
         wrapper.className = 'feature-card-wrapper';
+        wrapper.id = 'feature-' + String(f.id);
+        wrapper.dataset.featureId = String(f.id);
         wrapper.style.transform = `scale(${scaleFactor})`;
         wrapper.style.transformOrigin = 'center center';
         const card = document.createElement('div');
@@ -783,6 +790,36 @@
         wrapper.appendChild(card);
         grid.appendChild(wrapper);
       });
+      focusFeatureFromLocation();
+    }
+
+    function focusIdFromLocation() {
+      const hash = window.location.hash || '';
+      if (hash.indexOf('#feature-') === 0) {
+        try { return decodeURIComponent(hash.slice('#feature-'.length)); }
+        catch (e) { return hash.slice('#feature-'.length); }
+      }
+      return new URLSearchParams(window.location.search).get('focus') || '';
+    }
+
+    function focusFeatureFromLocation() {
+      const id = focusIdFromLocation();
+      if (!id) return;
+      const wrapper = document.getElementById('feature-' + id);
+      if (!wrapper) return;
+      wrapper.classList.add('is-highlight-focus');
+      const scroller = document.getElementById('scrollContainer');
+      if (scroller) {
+        const top = wrapper.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop - 24;
+        scroller.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      } else {
+        wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      const card = wrapper.querySelector('.card-square');
+      if (card) {
+        card.setAttribute('tabindex', '-1');
+        card.focus({ preventScroll: true });
+      }
     }
 
     // ============ MASTER TABLE ============
