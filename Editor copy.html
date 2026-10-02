@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>huetestt - Store Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
+        
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .product-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1); }
+
+        .theme-link {
+            font-weight: 600;
+            text-decoration: underline;
+            color: #d97706;
+        }
+        .theme-link:hover { color: #b45309; }
+
+        .live-chat-link {
+            font-weight: 600;
+            text-decoration: underline;
+            color: #d97706;
+            cursor: pointer;
+        }
+        .live-chat-link:hover { color: #b45309; }
+
+        .theme-select {
+            color: #111827;
+        }
+        .theme-select option {
+            padding: 6px 10px;
+        }
+        .theme-select optgroup {
+            padding-top: 6px;
+        }
+    </style>
+</head>
+<body class="h-screen bg-gray-50 overflow-hidden flex flex-col">
+
+    <!-- Top Bar -->
+    <div class="bg-white border-b h-12 flex items-center px-4 justify-between text-sm">
+        <div class="flex items-center gap-x-4">
+            <div class="flex items-center gap-x-2">
+                <div class="w-7 h-7 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">D</div>
+                <span class="font-medium">Dawn</span>
+            </div>
+            <div class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full flex items-center gap-x-1 font-medium">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                Live
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-x-6 text-gray-600">
+            <button onclick="togglePreview()" class="flex items-center gap-x-2 hover:text-gray-900">
+                <i class="fa-solid fa-eye"></i>
+                <span>Preview</span>
+            </button>
+            <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-xs font-semibold">JD</div>
+            <button class="bg-blue-600 text-white px-4 py-1.5 rounded-lg flex items-center gap-x-2 text-sm font-medium hover:bg-blue-700">
+                <i class="fa-solid fa-save"></i>
+                Save
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar -->
+        <div class="w-80 border-r bg-white flex flex-col">
+            <div class="p-4 border-b">
+                <div class="relative">
+                    <input type="text" class="w-full bg-gray-100 border border-transparent focus:border-gray-300 rounded-lg py-2 pl-10 text-sm" placeholder="Search app embeds">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+                </div>
+            </div>
+            
+            <div class="flex-1 overflow-auto p-4 space-y-6 text-sm">
+                <div class="border border-gray-200 rounded-xl">
+                    <div class="flex items-center justify-between px-3 py-2">
+                        <button id="search-filter-core-header" class="flex items-center gap-x-2 flex-1 text-left" data-expanded="true">
+                            <div class="w-5 h-5 bg-blue-100 text-blue-600 rounded flex items-center justify-center text-xs">📦</div>
+                            <span class="font-medium">Search & filter core</span>
+                            <i id="search-filter-core-icon" class="fa-solid fa-chevron-up text-xs text-gray-400 ml-auto"></i>
+                        </button>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input id="app-embed-toggle" type="checkbox" checked class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div id="search-filter-core-content" class="px-3 pb-4">
+                        <div id="notesContainer" class="pl-7 text-xs text-amber-600 leading-relaxed space-y-4"></div>
+                        <div class="pl-7 space-y-4 mt-4">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Search input selector</label>
+                                <input type="text" value="[name=q]" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Link no results page</label>
+                                <div class="flex items-center gap-x-2 bg-white border border-gray-300 rounded-lg px-3 py-2">
+                                    <i class="fa-solid fa-link text-gray-400"></i>
+                                    <span class="text-sm">All Products</span>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Collection grid selector</label>
+                                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-xl">
+                    <div class="flex items-center justify-between px-3 py-2">
+                        <button id="search-suggestion-header" class="flex items-center gap-x-2 flex-1 text-left" data-expanded="false">
+                            <div class="w-5 h-5 bg-blue-100 text-blue-600 rounded flex items-center justify-center text-xs">💡</div>
+                            <span class="font-medium">Search suggestion</span>
+                            <i id="search-suggestion-icon" class="fa-solid fa-chevron-down text-xs text-gray-400 ml-auto"></i>
+                        </button>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input id="search-suggestion-toggle" type="checkbox" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div id="search-suggestion-content" class="px-3 pb-4 hidden">
+                        <div class="pl-7 space-y-4 mt-2">
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Search input selector</label>
+                                <input type="text" placeholder="[name=q]" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Predictive container selector</label>
+                                <input type="text" placeholder=".predictive-search-form__content-wrapper,.predictive-search" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">Predictive container selector (mobile)</label>
+                                <input type="text" placeholder="Fill in field" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compatibility Panel (docked next to App embeds sidebar) -->
+        <div id="compatibilityPanel" class="hidden w-80 border-r bg-white flex-col overflow-hidden shrink-0">
+            <div class="flex items-center justify-between px-4 py-3.5 border-b shrink-0">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation text-amber-500"></i>
+                    <span class="font-semibold text-[15px] text-gray-900">Compatibility issue detected</span>
+                </div>
+                <button onclick="closeCompatibilityPanel()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="compatibilityPanelContent" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm"></div>
+        </div>
+
+        <!-- Pricing Update Panel (docked next to App embeds sidebar) -->
+        <div id="pricingUpdatePanel" class="hidden w-80 border-r bg-white flex-col overflow-hidden shrink-0">
+            <div class="flex items-start justify-between gap-2 px-4 py-3.5 border-b shrink-0">
+                <div class="flex items-start gap-2">
+                    <i class="fa-solid fa-gift text-blue-500 mt-0.5"></i>
+                    <span class="font-semibold text-[15px] text-gray-900 leading-snug">Pricing update - Special discount only for you</span>
+                </div>
+                <button onclick="closePricingUpdatePanel()" class="text-gray-400 hover:text-gray-600 transition-colors shrink-0 mt-0.5">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="pricingUpdatePanelContent" class="flex-1 overflow-y-auto p-4 space-y-4 text-sm"></div>
+        </div>
+
+        <!-- Main Store Area -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <div class="bg-white border-b px-8 py-3 flex items-center justify-between shrink-0">
+                <div class="text-lg font-semibold tracking-tight text-gray-900">huetestt</div>
+
+                <div class="flex items-center gap-x-2">
+                    <div class="text-xs font-medium text-gray-500 mr-2">Sidebar Notes:</div>
+                    <button onclick="setSidebarMode(1)" class="px-3 py-1.5 text-xs bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl">Has List</button>
+                    <button onclick="setSidebarMode(2)" class="px-3 py-1.5 text-xs bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl">No List</button>
+
+                    <div class="text-xs font-medium text-gray-500 mx-3">Panel:</div>
+                    <button onclick="showCompatibilityPanel(1)" class="px-3 py-1.5 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded-xl">Unsupported</button>
+                    <button onclick="showCompatibilityPanel(2)" class="px-3 py-1.5 text-xs bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-xl">Supported</button>
+
+                    <div class="text-xs font-medium text-gray-500 mx-3">Pricing:</div>
+                    <button onclick="showPricingUpdatePanel()" class="px-3 py-1.5 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-xl">Pricing Update</button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-auto">
+                <!-- Announcement bar -->
+                <div class="bg-[#ebe6dd] px-6 py-2 flex items-center justify-between text-xs text-gray-700">
+                    <div class="flex items-center gap-2">
+                        <span>Make an announcement</span>
+                        <span class="border border-gray-400 rounded-full px-2.5 py-0.5 text-[10px] tracking-wide text-gray-600">COUPON_CODE</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-gray-500">
+                        <i class="fa-brands fa-x-twitter"></i>
+                        <i class="fa-brands fa-facebook"></i>
+                        <i class="fa-brands fa-pinterest"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+
+                <!-- Nav bar -->
+                <div class="bg-gradient-to-b from-[#6b6b6b] to-[#a0a0a0] px-6 py-4 flex items-center justify-center relative">
+                    <nav class="flex items-center gap-8 text-sm font-medium text-white">
+                        <a href="#" class="hover:opacity-80">Home</a>
+                        <a href="#" class="hover:opacity-80">Catalog</a>
+                        <a href="#" class="hover:opacity-80">Contact</a>
+                        <a href="#" class="border-b-2 border-white pb-0.5">Accessory</a>
+                    </nav>
+                    <div class="absolute right-6 flex items-center gap-4 text-white text-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <i class="fa-solid fa-user"></i>
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <i class="fa-solid fa-circle-half-stroke"></i>
+                    </div>
+                </div>
+
+                <!-- Hero / Breadcrumb -->
+                <div class="px-8 pt-8 text-center">
+                    <h1 class="text-3xl font-semibold tracking-tight text-gray-900">Accessory</h1>
+                    <p class="text-sm text-gray-400 mt-3">
+                        <a href="#" class="hover:underline">Home</a> <span class="mx-1">&gt;</span> Accessory
+                    </p>
+                </div>
+
+                <div class="px-8 py-8 text-center border-b border-gray-100">
+                    <h2 class="text-2xl font-semibold tracking-wide text-gray-900">HEADING</h2>
+                    <p class="text-sm text-gray-500 mt-2">Tell about your brand. Tell your story.</p>
+                </div>
+
+                <!-- Catalog -->
+                <div class="flex">
+                    <div class="w-64 shrink-0 border-r bg-white p-6">
+                        <h2 class="font-semibold text-lg mb-6">Filter by</h2>
+                    </div>
+                    <div class="flex-1 p-8 bg-gray-50">
+                        <div class="grid grid-cols-4 gap-6">
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                            <div class="aspect-square bg-white rounded-lg flex items-center justify-center border border-gray-200">
+                                <i class="fa-regular fa-image text-3xl text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setSidebarMode(mode) {
+            const container = document.getElementById('notesContainer');
+            
+            if (mode === 1) {
+                container.innerHTML = `
+                    <p><strong>Note 1:</strong> If your theme is not in 
+                        <a href="https://flintverse.gitbook.io/docs/findter-custom-filter-search/user-guide/app-activation-and-preview/app-activation-in-store" 
+                           target="_blank" class="theme-link">this list</a>, 
+                        the filter might not appear. Please 
+                        <strong>contact us</strong> via 
+                        <span onclick="goToLiveChat()" class="live-chat-link">live chat</span> 
+                        to resolve theme compatibility.
+                    </p>
+                    <div>
+                        <label class="block text-xs text-gray-900 mb-1">Theme list</label>
+                        <select class="theme-select w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:border-blue-500">
+                            <option value="" selected>Select a theme</option>
+                            <optgroup label="Free themes">
+                                <option>Trade</option>
+                                <option>Refresh</option>
+                                <option>Origin</option>
+                                <option>Vessel</option>
+                                <option>Publisher</option>
+                                <option>Rise</option>
+                                <option>Savor</option>
+                                <option>Craft</option>
+                                <option>Studio</option>
+                                <option>Ride</option>
+                                <option>Horizon</option>
+                                <option>Tinker</option>
+                                <option>Fabric</option>
+                                <option>Sense</option>
+                                <option>Colorblock</option>
+                                <option>Heritage</option>
+                                <option>Taste</option>
+                                <option>Ritual</option>
+                                <option>Spotlight</option>
+                                <option>Pitch</option>
+                                <option>Dawn</option>
+                                <option>Crave</option>
+                                <option>Atelier</option>
+                                <option>Dwell</option>
+                            </optgroup>
+                            <optgroup label="Paid themes">
+                                <option>Arcane</option>
+                                <option>Venice</option>
+                                <option>Granivio</option>
+                                <option>Mivo</option>
+                                <option>Woody</option>
+                                <option>Andie</option>
+                                <option>Pleasure</option>
+                                <option>Runase</option>
+                                <option>Oak</option>
+                                <option>Road</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <p><strong>Note 2:</strong> This app uses its own product grid (instead of Shopify’s default) to display filters and product results. As a result, your collection page design may change.<br><br>
+                        Please visit the 
+                        <a href="#" onclick="goToCustomDesign()" class="font-semibold underline text-amber-700 hover:text-amber-800">Custom Design tab</a> 
+                        or <strong>contact us</strong> via 
+                        <span onclick="goToLiveChat()" class="live-chat-link">live chat</span> 
+                        if you need further customization.
+                    </p>
+                `;
+            } else {
+                container.innerHTML = `
+                    <p><strong>Note 1:</strong> Your theme may not work with the app, so the filter might not show. 
+                        <span onclick="goToLiveChat()" class="live-chat-link">Contact live chat</span> for help fixing it.
+                    </p>
+                    <div>
+                        <label class="block text-xs text-gray-900 mb-1">Theme list</label>
+                        <select class="theme-select w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-gray-900 focus:outline-none focus:border-blue-500">
+                            <option value="" selected>Select a theme</option>
+                            <optgroup label="Free themes">
+                                <option>Trade</option>
+                                <option>Refresh</option>
+                                <option>Origin</option>
+                                <option>Vessel</option>
+                                <option>Publisher</option>
+                                <option>Rise</option>
+                                <option>Savor</option>
+                                <option>Craft</option>
+                                <option>Studio</option>
+                                <option>Ride</option>
+                                <option>Horizon</option>
+                                <option>Tinker</option>
+                                <option>Fabric</option>
+                                <option>Sense</option>
+                                <option>Colorblock</option>
+                                <option>Heritage</option>
+                                <option>Taste</option>
+                                <option>Ritual</option>
+                                <option>Spotlight</option>
+                                <option>Pitch</option>
+                                <option>Dawn</option>
+                                <option>Crave</option>
+                                <option>Atelier</option>
+                                <option>Dwell</option>
+                            </optgroup>
+                            <optgroup label="Paid themes">
+                                <option>Arcane</option>
+                                <option>Venice</option>
+                                <option>Granivio</option>
+                                <option>Mivo</option>
+                                <option>Woody</option>
+                                <option>Andie</option>
+                                <option>Pleasure</option>
+                                <option>Runase</option>
+                                <option>Oak</option>
+                                <option>Road</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <p><strong>Note 2:</strong> This app uses its own product grid (instead of Shopify’s default) to display filters and product results. As a result, your collection page design may change.<br><br>
+                        Please visit the 
+                        <a href="#" onclick="goToCustomDesign()" class="font-semibold underline text-amber-700 hover:text-amber-800">Custom Design tab</a> 
+                        or <strong>contact us</strong> via 
+                        <span onclick="goToLiveChat()" class="live-chat-link">live chat</span> 
+                        if you need further customization.
+                    </p>
+                `;
+            }
+        }
+
+        function generateCompatibilityPanelContent(caseNum) {
+            const warningHTML = `
+                <div class="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2.5">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs mt-0.5"></i>
+                    <p class="text-xs font-medium text-amber-800 leading-relaxed">Filters may not appear on your store until this is resolved.</p>
+                </div>
+            `;
+
+            const section1HTML = caseNum === 1 ? `
+                <div>
+                    <p class="font-semibold text-gray-900 mb-2">1. Select a compatible theme</p>
+                    <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+                        <p class="text-gray-700 leading-relaxed">Go to <strong>App embeds &gt; Search &amp; filter core</strong> and select a theme from the <a href="#" onclick="goToLiveChat();return false;" class="theme-link">supported list</a>.</p>
+                        <div class="flex items-start gap-1.5 pt-2 border-t border-gray-200">
+                            <i class="fa-solid fa-circle-info text-gray-400 text-xs mt-0.5"></i>
+                            <p class="text-xs text-gray-500 leading-relaxed">Theme not in the list? <span onclick="goToLiveChat()" class="live-chat-link">Contact us</span>, we'll fix it for free.</p>
+                        </div>
+                    </div>
+                </div>
+            ` : `
+                <div>
+                    <p class="font-semibold text-gray-900 mb-2">1. Check your theme customizations</p>
+                    <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+                        <p class="text-gray-700 leading-relaxed">Your theme is <strong>officially supported</strong>, but some customizations may be affecting the <strong>filters</strong>.</p>
+                        <div class="flex items-start gap-1.5 pt-2 border-t border-gray-200">
+                            <i class="fa-solid fa-circle-info text-gray-400 text-xs mt-0.5"></i>
+                            <p class="text-xs text-gray-500 leading-relaxed">Not sure what's causing it? <span onclick="goToLiveChat()" class="live-chat-link">Contact us</span>, we'll take a look for free.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const section2HTML = `
+                <div>
+                    <p class="font-semibold text-gray-900 mb-2">2. Collection page may change</p>
+                    <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-2">
+                        <p class="text-gray-700 leading-relaxed">This app uses its own product grid. Your collection layout may look different.</p>
+                        <div class="flex items-start gap-1.5 pt-2 border-t border-gray-200">
+                            <i class="fa-solid fa-circle-info text-gray-400 text-xs mt-0.5"></i>
+                            <p class="text-xs text-gray-500 leading-relaxed">Customize via <a href="#" onclick="goToCustomDesign();return false;" class="theme-link">Custom Design tab</a> or <span onclick="goToLiveChat()" class="live-chat-link">live chat</span>.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const stepsHTML = `
+                <div>
+                    <p class="font-medium text-gray-900 mb-2">Please follow these steps:</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">1</span>
+                            <p class="text-gray-700"><strong class="font-semibold text-gray-900">Go back</strong> to Findter App Homepage</p>
+                        </div>
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">2</span>
+                            <p class="text-gray-700">Contact us via <span onclick="goToLiveChat()" class="live-chat-link font-semibold">live chat</span></p>
+                        </div>
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">3</span>
+                            <p class="text-gray-700"><strong class="font-semibold text-gray-900">Share</strong> your store URL &amp; collaborator code</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            return warningHTML + section1HTML + section2HTML + stepsHTML;
+        }
+
+        function showCompatibilityPanel(caseNum) {
+            closePricingUpdatePanel();
+            const panel = document.getElementById('compatibilityPanel');
+            const content = document.getElementById('compatibilityPanelContent');
+            content.innerHTML = generateCompatibilityPanelContent(caseNum);
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+        }
+
+        function closeCompatibilityPanel() {
+            const panel = document.getElementById('compatibilityPanel');
+            panel.classList.add('hidden');
+            panel.classList.remove('flex');
+        }
+
+        function generatePricingUpdatePanelContent() {
+            return `
+                <div class="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
+                    <i class="fa-solid fa-circle-info text-blue-500 text-xs mt-0.5"></i>
+                    <p class="text-xs font-medium text-blue-800 leading-relaxed">We've kept Findter <strong>free for almost a year</strong>, serving <strong>2,000+ stores</strong>. With this growth, we now introduce paid plans to cover costs and keep improving the app.</p>
+                </div>
+
+                <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 space-y-3">
+                    <div>
+                        <p class="text-gray-700 leading-relaxed">✓ <strong>Special offer</strong>: discount code <strong>THANKYOU</strong> if you pay during:</p>
+                        <div class="mt-1.5 space-y-1 pl-4">
+                            <p class="text-xs text-gray-600">31 Jul - 4 Aug: <strong>45%</strong> off monthly / <strong>50%</strong> off yearly</p>
+                            <p class="text-xs text-gray-600">5 - 6 Aug: <strong>35%</strong> off monthly / <strong>40%</strong> off yearly</p>
+                            <p class="text-xs text-gray-600">7 Aug: <strong>25%</strong> off monthly / <strong>30%</strong> off yearly</p>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-gray-200">
+                        <p class="text-gray-700 leading-relaxed">✓ <strong>What changes</strong>: from 4th Aug, 2026, if you don't upgrade, your catalog will be <strong>cut down until it reaches</strong> <strong>300 products</strong> (free plan limit)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="font-medium text-gray-900 mb-2">Guide for apply discount code:</p>
+                    <div class="space-y-2">
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">1</span>
+                            <p class="text-gray-700">Go to <strong class="font-semibold text-gray-900">Pricing Tab</strong></p>
+                        </div>
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">2</span>
+                            <p class="text-gray-700">Select plan that fit your store</p>
+                        </div>
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">3</span>
+                            <p class="text-gray-700">Click "Have a discount code?"</p>
+                        </div>
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">4</span>
+                            <p class="text-gray-700">Input the discount code</p>
+                        </div>
+                        <div class="flex items-center gap-3 border border-gray-200 rounded-lg px-3 py-2.5">
+                            <span class="w-5 h-5 shrink-0 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold flex items-center justify-center">5</span>
+                            <p class="text-gray-700">Proceed to payment</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showPricingUpdatePanel() {
+            closeCompatibilityPanel();
+            const panel = document.getElementById('pricingUpdatePanel');
+            const content = document.getElementById('pricingUpdatePanelContent');
+            content.innerHTML = generatePricingUpdatePanelContent();
+            panel.classList.remove('hidden');
+            panel.classList.add('flex');
+        }
+
+        function closePricingUpdatePanel() {
+            const panel = document.getElementById('pricingUpdatePanel');
+            panel.classList.add('hidden');
+            panel.classList.remove('flex');
+        }
+
+        function goToLiveChat() {
+            window.location.href = "index.html";
+        }
+
+        function goToCustomDesign() {
+            alert("Redirecting to Custom Design tab...");
+        }
+
+        function togglePreview() {
+            alert("Store preview mode toggled (demo)");
+        }
+
+        // Initialize
+        const STORAGE_KEYS = {
+            APP_TOGGLE_STATE: 'findter_app_toggle_state',
+            SEARCH_SUGGESTION_TOGGLE_STATE: 'findter_search_suggestion_toggle_state'
+        };
+
+        function setToggleState(isOn, persist) {
+            const toggle = document.getElementById('app-embed-toggle');
+            if (!toggle) return;
+            toggle.checked = isOn;
+            if (persist) {
+                localStorage.setItem(STORAGE_KEYS.APP_TOGGLE_STATE, isOn ? 'on' : 'off');
+            }
+        }
+
+        function setSearchSuggestionToggleState(isOn, persist) {
+            const toggle = document.getElementById('search-suggestion-toggle');
+            if (!toggle) return;
+            toggle.checked = isOn;
+            if (persist) {
+                localStorage.setItem(STORAGE_KEYS.SEARCH_SUGGESTION_TOGGLE_STATE, isOn ? 'on' : 'off');
+            }
+        }
+
+        function initAppToggle() {
+            const toggle = document.getElementById('app-embed-toggle');
+            if (!toggle) return;
+
+            const storedState = localStorage.getItem(STORAGE_KEYS.APP_TOGGLE_STATE);
+            if (storedState) {
+                toggle.checked = storedState === 'on';
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('autoEnable') === '1') {
+                setToggleState(true, true);
+            }
+
+            toggle.addEventListener('change', function() {
+                localStorage.setItem(STORAGE_KEYS.APP_TOGGLE_STATE, toggle.checked ? 'on' : 'off');
+            });
+        }
+
+        function initSearchSuggestionToggle() {
+            const toggle = document.getElementById('search-suggestion-toggle');
+            if (!toggle) return;
+
+            const storedState = localStorage.getItem(STORAGE_KEYS.SEARCH_SUGGESTION_TOGGLE_STATE);
+            if (storedState) {
+                toggle.checked = storedState === 'on';
+            }
+
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('autoEnableSuggestion') === '1') {
+                setSearchSuggestionToggleState(true, true);
+            }
+
+            toggle.addEventListener('change', function() {
+                localStorage.setItem(STORAGE_KEYS.SEARCH_SUGGESTION_TOGGLE_STATE, toggle.checked ? 'on' : 'off');
+            });
+        }
+
+        function setupAccordion(headerId, contentId, iconId) {
+            const header = document.getElementById(headerId);
+            const content = document.getElementById(contentId);
+            const icon = document.getElementById(iconId);
+            if (!header || !content || !icon) return;
+
+            header.addEventListener('click', function() {
+                const expanded = header.getAttribute('data-expanded') === 'true';
+                header.setAttribute('data-expanded', String(!expanded));
+                content.classList.toggle('hidden', expanded);
+                icon.className = expanded ? 'fa-solid fa-chevron-down text-xs text-gray-400 ml-auto' : 'fa-solid fa-chevron-up text-xs text-gray-400 ml-auto';
+            });
+        }
+
+        window.onload = () => {
+            setSidebarMode(1);
+            initAppToggle();
+            initSearchSuggestionToggle();
+            setupAccordion('search-filter-core-header', 'search-filter-core-content', 'search-filter-core-icon');
+            setupAccordion('search-suggestion-header', 'search-suggestion-content', 'search-suggestion-icon');
+        };
+    </script>
+    <link rel="stylesheet" href="polaris.css">
+</body>
+</html>

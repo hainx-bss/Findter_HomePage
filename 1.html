@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify App Dashboard - Findter Filter & Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-scrollbar::-webkit-scrollbar { width: 6px; }
+        .sidebar-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .homepage-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .homepage-column {
+            display: contents;
+        }
+        @media (min-width: 1024px) {
+            .homepage-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .homepage-column {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .homepage-left {
+                grid-column: span 2 / span 2;
+            }
+            .homepage-right {
+                grid-column: span 1 / span 1;
+            }
+        }
+        .sidebar-collapsed aside {
+            width: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+        }
+        .sidebar-collapsed aside > * {
+            display: none !important;
+        }
+        .step-checkbox {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .congrat-message {
+            animation: fadeInUp 0.4s ease;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content {
+            animation: slideInUp 0.3s ease;
+        }
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes guideAttention {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.03) translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+            30% { transform: scale(1.02) translateY(-2px); box-shadow: 0 8px 16px rgba(0,0,0,0.12); }
+            50% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+        .guide-attention-animation {
+            animation: guideAttention 1s ease-out forwards;
+            border-color: #f59e0b !important;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+        .nav-active {
+            background-color: #d1d5db !important;
+            color: #303030 !important;
+            font-weight: 600 !important;
+        }
+        .modal-wrapper {
+            z-index: 9999;
+        }
+        .chat-bubble {
+            position: fixed;
+            bottom: 80px;
+            right: 24px;
+            width: 340px;
+            max-height: 420px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 10000;
+            animation: chatSlideUp 0.3s ease;
+        }
+        @keyframes chatSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-bubble.active {
+            display: flex;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-custom {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .btn-disabled-overlay {
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-disabled-overlay::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.3);
+            pointer-events: none;
+        }
+        .page-view {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .page-view.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .empty-state-illustration {
+            opacity: 0.05;
+        }
+        .app-header-clickable {
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+        .app-header-clickable:hover {
+            background-color: rgba(255,255,255,0.05);
+            border-radius: 6px;
+        }
+        .flow-btn {
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .flow-btn.active-flow-1 {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            border-color: #dc2626;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+        }
+        .flow-btn.active-flow-2 {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            border-color: #2563eb;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+        }
+        .flow-indicator {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulseDot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; }
+        }
+        .unified-status-banner {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left-width: 4px;
+            border-left-style: solid;
+        }
+        .unified-status-banner.indexing-state {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fcd34d;
+        }
+        .unified-status-banner.complete-state {
+            border-left-color: #f59e0b;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fcd34d;
+        }
+        .unified-status-banner.disabled-state {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #fca5a5;
+        }
+        .theme-live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-left: 8px;
+        }
+        .theme-live-dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: livePulse 2s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.9); }
+        }
+    </style>
+</head>
+<body class="bg-[#f1f2f4] h-screen flex flex-col overflow-hidden text-[#303030]">
+    <!-- Header -->
+    <header class="h-14 bg-[#1a1a1a] text-gray-300 flex items-center justify-between px-4 shrink-0">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-white font-semibold text-lg tracking-tight">
+                <i class="fab fa-shopify text-[#95bf47] text-[22px]"></i>
+                shopify
+            </div>
+        </div>
+        <div class="flex-1 max-w-[560px] px-4">
+            <div class="bg-[#303030] hover:bg-[#3a3a3a] transition-colors rounded border border-[#444] flex items-center px-3 py-1.5 cursor-pointer shadow-inner">
+                <i class="fas fa-search text-gray-400 text-sm"></i>
+                <span class="ml-2 text-gray-400 text-sm flex-1">Search</span>
+                <div class="flex gap-1">
+                    <span class="bg-[#4a4a4a] border border-[#555] text-[10px] px-1.5 py-0.5 rounded text-gray-300 font-medium">CTRL</span>
+                    <span class="bg-[#4a4a4a] border border-[#555] text-[10px] px-1.5 py-0.5 rounded text-gray-300 font-medium">K</span>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm">
+            <button class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-th"></i></button>
+            <button class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-bell"></i></button>
+            <div class="flex items-center gap-2 hover:bg-[#303030] rounded px-2 py-1 cursor-pointer transition-colors -mr-2">
+                <div class="bg-[#cbf1c4] text-[#1f5119] text-[10px] font-bold px-1.5 py-0.5 rounded">MS</div>
+                <span class="text-gray-200 font-medium text-[13px]">Master Admin</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-60 bg-[#ebebeb] flex flex-col border-r border-gray-300 shrink-0 sidebar-scrollbar overflow-y-auto transition-all duration-300">
+            <nav class="flex-1 py-3 px-3 flex flex-col gap-0.5">
+                <a href="#" id="nav-home-main" data-page="home" class="nav-item flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors nav-active"><i class="fas fa-home w-6 text-gray-500 text-center"></i> Home</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-inbox w-6 text-gray-500 text-center"></i> Orders</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-tags w-6 text-gray-500 text-center"></i> Products</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-user w-6 text-gray-500 text-center"></i> Customers</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-bullhorn w-6 text-gray-500 text-center"></i> Marketing</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-percent w-6 text-gray-500 text-center"></i> Discounts</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-file-alt w-6 text-gray-500 text-center"></i> Content</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-globe w-6 text-gray-500 text-center"></i> Markets</a>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-chart-line w-6 text-gray-500 text-center"></i> Analytics</a>
+                
+                <div class="mt-4 px-2 py-1 flex justify-between items-center text-[11px] font-bold text-gray-500 uppercase tracking-wider group cursor-pointer hover:bg-gray-200 rounded-md"><span>Sales channels</span><i class="fas fa-chevron-right text-[10px] text-gray-400"></i></div>
+                <a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md hover:bg-gray-200 text-gray-700 transition-colors"><i class="fas fa-store w-6 text-gray-500 text-center"></i> Online Store</a>
+                
+                <div class="mt-4 px-2 py-1 flex justify-between items-center text-[11px] font-bold text-gray-500 uppercase tracking-wider group cursor-pointer hover:bg-gray-200 rounded-md"><span>Apps</span><i class="fas fa-chevron-right text-[10px] text-gray-400"></i></div>
+                
+                <div class="bg-gray-200 rounded-md pb-1.5 mt-0.5 shadow-sm">
+                    <a href="#" id="nav-app-name" data-page="home" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] font-medium rounded-md text-[#303030] app-header-clickable transition-colors cursor-pointer">
+                        <div class="bg-gray-600 text-white rounded w-5 h-5 flex items-center justify-center text-[10px] mr-2 shrink-0"><i class="fas fa-filter"></i></div>
+                        <span class="flex-1 truncate">Findter Custom Filter ...</span>
+                        <div class="w-1 h-1 bg-[#303030] rounded-full mx-2"></div>
+                    </a>
+                    
+                    <div class="flex flex-col mt-0.5 border-l-2 border-gray-300 ml-5 pl-3 space-y-0.5">
+                        <a href="#" id="nav-app-home" data-page="home" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-home w-5 text-center text-xs mr-1"></i>Homepage</a>
+                        <a href="#" id="nav-filter" data-page="filter" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-filter w-5 text-center text-xs mr-1"></i>Filter</a>
+                        <a href="#" id="nav-search" data-page="search" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-search w-5 text-center text-xs mr-1"></i>Search</a>
+                        <a href="#" id="nav-metafield" data-page="metafield" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-database w-5 text-center text-xs mr-1"></i>Metafield</a>
+                        <a href="#" id="nav-design" data-page="design" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-th-large w-5 text-center text-xs mr-1"></i>Filter & Product Grid Design</a>
+                        <a href="#" id="nav-analytics-app" data-page="analytics-app" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-chart-bar w-5 text-center text-xs mr-1"></i>Analytics</a>
+                        <a href="#" id="nav-advanced" data-page="advanced" class="app-sub-nav flex items-center px-2 py-1.5 text-[13px] text-gray-600 hover:text-gray-900 hover:bg-gray-300 py-1 px-2 rounded transition-colors cursor-pointer"><i class="fas fa-cogs w-5 text-center text-xs mr-1"></i>Advanced Features</a>
+                    </div>
+                </div>
+            </nav>
+            <div class="p-4 mt-auto"><a href="#" class="flex items-center px-2 py-1.5 text-[13px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-md transition-colors"><i class="fas fa-cog w-6 text-center"></i> Settings</a></div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#f1f2f4]">
+            <div class="flex items-center justify-between px-8 py-3 shrink-0 bg-white border-b border-gray-200">
+                <div class="flex items-center gap-2">
+                    <button id="sidebar-toggle-btn" class="text-gray-500 hover:bg-gray-200 p-1.5 rounded transition-colors" aria-label="Toggle sidebar">
+                        <i class="fas fa-bars text-sm"></i>
+                    </button>
+                    <div class="flex items-center gap-2 app-header-clickable px-2 -mx-2 py-1 rounded-md" id="app-header-title" data-page="home">
+                    <div class="bg-[#303030] text-white rounded-[4px] w-[22px] h-[22px] flex items-center justify-center text-[11px]"><i class="fas fa-filter"></i></div>
+                    <h1 class="font-semibold text-[18px] text-[#303030]">Findter Filter & Search</h1>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="reset-indexing-btn" class="border border-orange-300 bg-orange-50 text-orange-700 rounded-[6px] px-3 py-1.5 text-[12px] font-medium hover:bg-orange-100 transition-colors shadow-sm whitespace-nowrap">Reset Indexing</button>
+                    <button id="end-index-btn" class="border border-green-300 bg-green-50 text-green-700 rounded-[6px] px-3 py-1.5 text-[12px] font-medium hover:bg-green-100 transition-colors shadow-sm whitespace-nowrap">End Index Now</button>
+                    <button class="text-gray-500 hover:bg-gray-200 p-1.5 rounded transition-colors"><i class="fas fa-ellipsis-h text-sm"></i></button>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto px-8 pt-6 pb-12 relative">
+                
+                <!-- HOME PAGE VIEW -->
+                <div id="page-home" class="page-view active">
+                    <div class="max-w-[1040px] mx-auto">
+                        <!-- NOTIFICATION BANNERS (Polaris Banner components, server-rendered above the hero text so it remains the LCP candidate) -->
+                        <div id="homepage-notification-banners" class="mb-4 space-y-3">
+                            <!-- LIMIT WARNING ALERT STRIP: Polaris Banner tone="warning", slim, conditionally rendered -->
+                            <div id="limit-reached-banner" role="status" aria-live="polite" class="rounded-[8px] border" style="background-color:#FFF1C2; border-color:#B98900;">
+                                <div class="flex items-center justify-between gap-3 px-3 py-2">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" class="shrink-0" aria-hidden="true">
+                                            <path d="M10 2.5L18 17H2L10 2.5Z" stroke="#8A6116" stroke-width="1.5" stroke-linejoin="round"/>
+                                            <path d="M10 8v3.5" stroke="#8A6116" stroke-width="1.5" stroke-linecap="round"/>
+                                            <circle cx="10" cy="14" r="0.9" fill="#8A6116"/>
+                                        </svg>
+                                        <p class="text-[13px] leading-snug" style="color:#8A6116;">
+                                            Your store has exceeded the current limit with over <strong id="limit-reached-product-count">10,000</strong> products and <strong id="limit-reached-metafield-count">50</strong> metafields. Products beyond the limit will not be indexed.
+                                            <a href="#" id="limit-reached-contact-link" class="underline font-medium" style="color:#8A6116;">Contact us</a> to consult.
+                                        </p>
+                                    </div>
+                                    <button id="limit-reached-close-btn" aria-label="Dismiss" class="shrink-0 rounded p-1 transition-colors hover:bg-[#F5DC93]" style="color:#8A6116;">
+                                        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                            <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- PLAN UPDATE BANNER: Polaris Banner tone="info", always visible, not dismissible -->
+                            <div id="pricing-notice-banner" class="rounded-[8px] border" style="background-color:#F0F7FC; border-color:#94C2E8;">
+                                <div class="flex items-start gap-3 px-4 py-4">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="shrink-0 mt-0.5" aria-hidden="true">
+                                        <circle cx="10" cy="10" r="8" stroke="#1F5199" stroke-width="1.5"/>
+                                        <path d="M10 9v5" stroke="#1F5199" stroke-width="1.5" stroke-linecap="round"/>
+                                        <circle cx="10" cy="6.5" r="0.9" fill="#1F5199"/>
+                                    </svg>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-[14px] font-semibold mb-2" style="color:#1F5199;">Upcoming Plan Update</p>
+                                        <p class="text-[13px] text-[#303030] mb-2">Thank You for Using Findter ❤️</p>
+                                        <p class="text-[13px] text-[#303030] leading-relaxed mb-3">Starting <strong>July 15, 2026</strong>, Findter will introduce paid plans. As an existing user, you'll receive a <strong>14-day free trial</strong> before billing begins.</p>
+                                        <ul class="space-y-1.5">
+                                            <li class="flex items-center gap-2 text-[13px] text-[#303030]">
+                                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" class="shrink-0" aria-hidden="true"><path d="M4 10.5l4 4L16 6" stroke="#1F5199" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                                Your data and settings stay unchanged.
+                                            </li>
+                                            <li class="flex items-center gap-2 text-[13px] text-[#303030]">
+                                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" class="shrink-0" aria-hidden="true"><path d="M4 10.5l4 4L16 6" stroke="#1F5199" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                                No setup required.
+                                            </li>
+                                            <li class="flex items-center gap-2 text-[13px] text-[#303030]">
+                                                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" class="shrink-0" aria-hidden="true"><path d="M4 10.5l4 4L16 6" stroke="#1F5199" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                                Decide during your trial.
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="welcome-box" elementtiming="lcp-welcome" class="mb-4 px-1" style="display:block !important;">
+                            <h1 elementtiming="lcp-welcome-heading" class="text-[22px] font-bold text-[#303030] mb-1">👋 Welcome to Findter 👋</h1>
+                            <p class="text-[13px] text-gray-500 leading-relaxed">Explore your store's filter and search tools and help your customers find exactly what they're looking for.</p>
+                        </div>
+
+                        <div id="unified-status-banner" class="mb-5 hidden"></div>
+                        <div id="indexing-banner-container" class="mb-5 hidden"></div>
+
+                        <div class="homepage-grid">
+                            <div class="homepage-column homepage-left">
+                                <div id="onboarding-guide-card" class="bg-white rounded-[8px] shadow-sm border border-gray-200 overflow-hidden transition-all duration-300 order-2 lg:order-none">
+                                    <div class="p-5">
+                                        <div class="flex items-center justify-between mb-5">
+                                            <h3 class="font-semibold text-[15px] text-[#303030]">Onboarding guide</h3>
+                                            <button class="guide-toggle text-gray-400 hover:text-gray-600 transition-colors" data-target="guide-body-1" aria-expanded="true"><i class="fas fa-chevron-up"></i></button>
+                                        </div>
+                                        
+                                        <div class="flex items-center gap-4 mb-3">
+                                            <div class="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden">
+                                                <div id="progress-bar" class="bg-black h-full w-[33%] rounded-full transition-all duration-500"></div>
+                                            </div>
+                                            <span id="progress-text" class="text-[13px] text-gray-600 font-medium">1/3 completed</span>
+                                        </div>
+                                        
+                                        <div id="congrat-message-container" class="mb-4 hidden congrat-message"></div>
+
+                                        <div id="guide-body-1" class="space-y-6 relative pl-1">
+                                            <div class="border border-gray-100 rounded-lg overflow-visible">
+                                                <div class="flex items-center gap-5 p-3 group transition-colors">
+                                                    <div id="step1-checkbox" class="step-checkbox w-6 h-6 shrink-0 rounded-full border-2 border-dashed border-gray-400 bg-white flex items-center justify-center hover:border-gray-600 transition-colors" data-step="1">
+                                                        <i class="fas fa-check text-[11px] text-transparent"></i>
+                                                    </div>
+                                                    <div class="flex-1 flex items-center cursor-pointer guide-step-toggle" data-target="step-content-1">
+                                                        <h4 class="font-semibold text-[14px] text-[#303030] flex-1">Activate app embed in theme (<a href="#" class="font-bold text-green-600 underline hover:text-green-800">Guideline here</a>)</h4>
+                                                        <i class="fas fa-chevron-up text-gray-400 text-xs transition-transform duration-200 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <div id="step-content-1" class="pl-14 pr-4 pb-4">
+                                                    <div id="step1-initial" class="mb-3">
+                                                        <div class="flex flex-wrap items-center gap-x-2 gap-y-2">
+                                                            <span class="text-[13px] font-bold text-gray-800 whitespace-nowrap">Step 1:</span>
+                                                            <span class="text-[13px] text-gray-700">Theme Selection</span>
+                                                            <button type="button" id="select-theme-btn" class="border border-gray-300 bg-white text-[#303030] rounded-[6px] px-4 py-1.5 text-[13px] font-medium hover:bg-gray-50 transition-colors shadow-sm ml-1 inline-flex items-center gap-2">
+                                                                Select a theme
+                                                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div id="step1-completed" class="hidden">
+                                                        <div class="flex flex-wrap items-center gap-x-2 gap-y-2 mb-3">
+                                                            <span class="text-[13px] font-bold text-gray-800 whitespace-nowrap">Step 1:</span>
+                                                            <span class="text-[13px] text-gray-700">Theme Selection</span>
+                                                            <div class="relative">
+                                                                <button type="button" id="guide-theme-dropdown-btn" class="border border-gray-300 bg-white text-[#303030] rounded-[6px] px-3 py-1.5 text-[13px] font-medium hover:bg-gray-50 transition-colors inline-flex items-center gap-2 w-full">
+                                                                    <span id="guide-theme-dropdown-label" class="text-gray-700 flex-1 text-left">-- Select a theme --</span>
+                                                                    <span id="guide-theme-live-pill" class="hidden px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-700">Live</span>
+                                                                    <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                                                                </button>
+                                                                <div id="guide-theme-dropdown-menu" class="hidden absolute left-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                                                                    <div id="guide-theme-dropdown-list" class="py-1"></div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <p class="text-[13px] text-[#303030] mb-3">
+                                                            <strong>Step 2:</strong> Go to Theme Editor > App Embeds > Enable the "Search & Filter core" (Findter) > Save the Theme
+                                                        </p>
+                                                        
+                                                        <button type="button" id="guide-enable-editor-btn" class="hidden mt-2 bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors inline-flex items-center gap-2">
+                                                            <i class="fas fa-external-link-alt text-xs"></i>
+                                                            Enable App in Theme Editor
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="border border-gray-100 rounded-lg overflow-hidden">
+                                                <div class="flex items-center gap-5 p-3 group transition-colors">
+                                                    <div id="step4-checkbox" class="step-checkbox w-6 h-6 shrink-0 rounded-full border-2 border-dashed border-gray-400 bg-white flex items-center justify-center" data-step="4">
+                                                        <i class="fas fa-check text-[11px] text-transparent"></i>
+                                                    </div>
+                                                    <div class="flex-1 flex items-center cursor-pointer guide-step-toggle" data-target="step-content-4">
+                                                        <h4 class="text-[14px] font-semibold text-[#303030] flex-1"><strong>Activate search suggestion in theme (Optional)</strong></h4>
+                                                        <i class="fas fa-chevron-up text-gray-400 text-xs transition-transform duration-200 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <div id="step-content-4" class="pl-14 pr-4 pb-4">
+                                                    <button type="button" id="enable-search-suggestion-btn" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors inline-flex items-center gap-2">
+                                                        <i class="fas fa-external-link-alt text-xs"></i>
+                                                        Enable Search Suggestion in Theme Editor
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div id="step2-container" class="border border-gray-100 rounded-lg overflow-hidden">
+                                                <div class="flex items-center gap-5 p-3 group transition-colors">
+                                                    <div id="step2-checkbox" class="step-checkbox w-6 h-6 shrink-0 rounded-full border-2 border-dashed border-gray-400 bg-white flex items-center justify-center hover:border-gray-600 transition-colors" data-step="2">
+                                                        <i class="fas fa-check text-[11px] text-transparent"></i>
+                                                    </div>
+                                                    <div class="flex-1 flex items-center cursor-pointer guide-step-toggle" data-target="step-content-2">
+                                                        <h4 class="font-semibold text-[14px] text-[#303030] flex-1">Set up custom filters for collections (Optional)</h4>
+                                                        <i class="fas fa-chevron-up text-gray-400 text-xs transition-transform duration-200 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <div id="step-content-2" class="pl-14 pr-4 pb-4">
+                                                    <p class="text-[13px] text-[#303030] mb-2">Create your custom filter for each collection page with unlimited filter values.</p>
+                                                    <p class="text-[13px] mb-3">Filter Guidelines <a href="#" class="text-blue-600 font-bold underline hover:text-blue-800">here</a></p>
+                                                    <button type="button" id="go-to-filter-btn" class="bg-[#303030] border border-[#303030] text-white rounded-[6px] px-4 py-1.5 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                                        Go to Filter
+                                                    </button>
+                                                    <p id="filter-lock-hint" class="hidden text-[11px] text-orange-600 mt-2 font-medium">
+                                                        <i class="fas fa-lock mr-1"></i> Complete Step 1 and wait for indexing to finish first
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="border border-gray-100 rounded-lg overflow-hidden">
+                                                <div class="flex items-center gap-5 p-3 group transition-colors">
+                                                    <div class="step-checkbox w-6 h-6 shrink-0 bg-[#303030] rounded-full text-white flex items-center justify-center cursor-pointer transition-colors" data-step="3" data-completed="true">
+                                                        <i class="fas fa-check text-[11px]"></i>
+                                                    </div>
+                                                    <div class="flex-1 flex items-center cursor-pointer guide-step-toggle" data-target="step-content-3">
+                                                        <h4 class="text-[14px] font-semibold text-gray-500 flex-1">Basic search engine is set up in app</h4>
+                                                        <i class="fas fa-chevron-up text-gray-400 text-xs transition-transform duration-200 ml-2"></i>
+                                                    </div>
+                                                </div>
+                                                <div id="step-content-3" class="pl-14 pr-4 pb-4">
+                                                    <p class="text-[13px] text-gray-500">Your search engine is optimized and active.</p>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-[8px] shadow-sm border border-gray-200 overflow-hidden order-5 lg:order-none">
+                                    <div class="p-5 flex items-center justify-between border-b border-gray-100">
+                                        <div class="flex items-center gap-3"><h3 class="font-semibold text-[15px] text-[#303030]">Data insight</h3><button class="border border-gray-300 rounded-[6px] px-2.5 py-1 text-[13px] font-medium text-[#303030] flex items-center gap-2 hover:bg-gray-50 shadow-sm"><i class="far fa-calendar text-gray-500 text-sm"></i> Last 30 days</button></div>
+                                        <button class="border border-gray-300 rounded-[6px] w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-50 shadow-sm"><i class="fas fa-chart-bar text-sm"></i></button>
+                                    </div>
+                                    <div class="p-5 flex gap-5">
+                                        <div class="flex-1 border border-gray-200 rounded-[8px] p-5 relative overflow-hidden flex flex-col justify-between"><h4 class="text-[13px] font-semibold text-[#303030] border-b border-gray-300 border-dashed pb-3 mb-4">Total sessions</h4><div class="flex items-end justify-between"><div><div class="text-[13px] text-green-700 font-medium mb-1 flex items-center gap-1">0% <i class="fas fa-arrow-up text-[10px]"></i></div><div class="text-[32px] font-normal leading-none text-[#303030]">0</div></div><div class="w-20 h-[2px] bg-green-500 mb-2"></div></div></div>
+                                        <div class="flex-1 border border-gray-200 rounded-[8px] p-5 relative overflow-hidden flex flex-col justify-between"><h4 class="text-[13px] font-semibold text-[#303030] border-b border-gray-300 border-dashed pb-3 mb-4">Conversion rate</h4><div class="flex items-end justify-between"><div class="mt-6"><div class="text-[32px] font-normal leading-none text-[#303030]">0%</div></div><div class="w-20 h-[2px] bg-green-500 mb-2"></div></div></div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-[8px] shadow-sm border border-gray-200 overflow-hidden p-5 order-7 lg:order-none"><h3 class="font-semibold text-[15px] text-[#303030] mb-3">Master</h3><button class="border border-gray-300 rounded-[6px] px-3 py-1.5 text-[13px] font-medium text-[#303030] hover:bg-gray-50 shadow-sm">Master</button></div>
+                            </div>
+
+                            <div class="homepage-column homepage-right">
+                                <div class="bg-white rounded-[8px] shadow-sm border border-gray-200 overflow-hidden p-5 order-1 lg:order-none">
+                                    <h3 class="font-semibold text-[15px] text-[#303030] mb-4"><strong>Findter App Status</strong></h3>
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between text-[13px] text-[#303030]">
+                                            <span class="font-medium">App Embed</span>
+                                            <span id="status-app-embed" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600">
+                                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                                Inactive
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-[13px] text-[#303030]">
+                                            <span class="font-medium">Search Suggestion</span>
+                                            <span id="status-search-suggestion" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600">
+                                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                                Inactive
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-[8px] shadow-sm border border-gray-200 overflow-hidden p-5 order-6 lg:order-none">
+                                    <h3 class="font-semibold text-[15px] text-[#303030] mb-3">Help & Support</h3>
+                                    <p class="text-[13px] text-[#303030] mb-3 leading-relaxed">Find out more User Guidelines <a href="#" class="text-blue-600 hover:underline">here</a>.</p>
+                                    <div class="text-[13px] text-[#303030] space-y-1 mb-4">
+                                        <p class="font-medium">If you struggling with:</p>
+                                        <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                                            <li>Setup assistance</li>
+                                            <li>Theme compatibility</li>
+                                            <li>Filter/Search not displaying?</li>
+                                            <li>Storefront UI customize?</li>
+                                        </ul>
+                                        <p class="mt-2">Please contact us for <strong class="font-semibold">free support</strong>.</p>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <button class="flex items-center justify-center gap-2 border border-gray-300 rounded-[6px] px-3 py-1.5 text-[13px] font-medium text-[#303030] hover:bg-gray-50 flex-1 shadow-sm"><i class="far fa-comment-dots text-gray-500 text-sm"></i> Live chat</button>
+                                        <button class="flex items-center justify-center gap-2 border border-gray-300 rounded-[6px] px-3 py-1.5 text-[13px] font-medium text-[#303030] hover:bg-gray-50 flex-1 shadow-sm"><i class="fas fa-phone-alt text-gray-500 text-sm"></i> Book a call</button>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white rounded-[8px] shadow-sm border border-gray-200 overflow-hidden p-5 order-3 lg:order-none">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <h3 class="font-semibold text-[15px] text-[#303030]">Sync recent updates</h3>
+                                        <span id="sync-status-badge" class="bg-[#cbf1c4] text-[#1f5119] text-[11px] px-2 py-0.5 rounded-full font-semibold">Completed</span>
+                                    </div>
+                                    <p id="sync-status-text" class="text-[13px] text-[#303030] mb-5">Recent updates were last synced:<strong class="font-semibold ml-1" id="sync-timestamp">23:59:09 02/03/2026</strong></p>
+                                    
+                                    <button id="manual-sync-btn" class="flex items-center justify-center gap-2 border border-gray-300 rounded-[6px] px-3 py-1.5 text-[13px] font-medium text-[#303030] hover:bg-gray-50 w-fit shadow-sm">
+                                        <i class="fas fa-sync-alt text-gray-500 text-sm" id="sync-icon"></i>
+                                        <span id="sync-btn-text">Manual sync</span>
+                                    </button>
+                                </div>
+
+                                <!-- PROMO BANNER 2: Smart Search Suggestions -->
+                                <div id="promo-banner-2" class="order-4 lg:order-none rounded-[8px] overflow-hidden shadow-sm relative">
+                                    <button id="promo-banner-2-close" class="absolute top-2 right-2 z-10 text-white/80 hover:text-white hover:bg-black/25 rounded p-1 transition-colors" aria-label="Dismiss">
+                                        <i class="fas fa-times text-sm"></i>
+                                    </button>
+                                    <img src="Image2.png" alt="Smart Search Suggestions feature" class="w-full block">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OTHER PAGE VIEWS -->
+                <div id="page-filter" class="page-view">
+                    <div class="max-w-[1040px] mx-auto">
+                        <div class="mb-6"><h1 class="text-[22px] font-bold text-[#303030]">Filter</h1></div>
+                        <div id="unified-banner-filter" class="mb-5 hidden"></div>
+                        <div id="filter-page-content"></div>
+                    </div>
+                </div>
+
+                <div id="page-search" class="page-view">
+                    <div class="max-w-[1040px] mx-auto">
+                        <div class="mb-6"><h1 class="text-[22px] font-bold text-[#303030]">Search</h1></div>
+                        <div id="unified-banner-search" class="mb-5 hidden"></div>
+                        <div id="search-page-content"></div>
+                    </div>
+                </div>
+
+                <div id="page-metafield" class="page-view">
+                    <div class="max-w-[1040px] mx-auto">
+                        <div class="mb-6"><h1 class="text-[22px] font-bold text-[#303030]">Metafield</h1></div>
+                        <div id="unified-banner-metafield" class="mb-5 hidden"></div>
+                        <div id="metafield-page-content"></div>
+                    </div>
+                </div>
+
+                <div id="page-design" class="page-view">
+                    <div class="max-w-[1040px] mx-auto">
+                        <div class="mb-6"><h1 class="text-[22px] font-bold text-[#303030]">Filter & Product Grid Design</h1></div>
+                        <div id="unified-banner-design" class="mb-5 hidden"></div>
+                        <div id="design-page-content"></div>
+                    </div>
+                </div>
+
+                <div id="page-analytics-app" class="page-view">
+                    <div class="max-w-[1040px] mx-auto">
+                        <div class="mb-6"><h1 class="text-[22px] font-bold text-[#303030]">Analytics</h1></div>
+                        <div id="unified-banner-analytics-app" class="mb-5 hidden"></div>
+                        <div id="analytics-app-page-content"></div>
+                    </div>
+                </div>
+
+                <div id="page-advanced" class="page-view">
+                    <div class="max-w-[1040px] mx-auto">
+                        <div class="mb-6"><h1 class="text-[22px] font-bold text-[#303030]">Advanced Features</h1></div>
+                        <div id="unified-banner-advanced" class="mb-5 hidden"></div>
+                        <div id="advanced-page-content"></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Floating Chat Icon -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button id="floating-chat-btn" class="w-[50px] h-[50px] bg-[#303030] rounded-full shadow-lg flex items-center justify-center text-white hover:bg-red-800 transition-colors relative">
+            <i class="fas fa-search text-xl"></i>
+            <span id="chat-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-600 rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">1</span>
+        </button>
+    </div>
+
+    <!-- Chat Bubble -->
+    <div id="chat-bubble" class="chat-bubble">
+        <div class="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-headset"></i>
+                <span class="font-semibold text-sm">Support Chat</span>
+            </div>
+            <button id="close-chat-bubble" class="hover:bg-white/20 rounded-full p-1 transition-colors">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 min-h-[200px] max-h-[280px]">
+            <div class="flex gap-2">
+                <div class="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center text-red-600 shrink-0">
+                    <i class="fas fa-robot text-xs"></i>
+                </div>
+                <div class="bg-gray-100 rounded-lg rounded-tl-none px-3 py-2 text-[13px] text-gray-700">
+                    Hello! How can we help you today?
+                </div>
+            </div>
+        </div>
+        <div class="p-3 border-t border-gray-200">
+            <div class="flex gap-2">
+                <input id="chat-input" type="text" placeholder="Type your message..." class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-[13px] outline-none focus:border-red-400 focus:ring-1 focus:ring-red-400">
+                <button id="send-chat-btn" class="bg-red-600 text-white rounded-lg px-4 py-2 hover:bg-red-700 transition-colors">
+                    <i class="fas fa-paper-plane text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Access Restricted Modal -->
+    <div id="restricted-modal" class="modal-wrapper fixed inset-0 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="restricted-modal-overlay"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-md pointer-events-auto relative modal-content">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
+                            <i class="fas fa-lock text-lg"></i>
+                        </div>
+                        <h3 class="text-[16px] font-semibold text-[#303030]">Access Restricted</h3>
+                    </div>
+                    <button type="button" id="close-restricted-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-5">
+                    <div class="space-y-4">
+                        <p class="text-[14px] text-[#303030] leading-relaxed">Please complete the following steps before accessing this feature:</p>
+                        <div class="space-y-3">
+                            <div id="restriction-item-1" class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                                <div id="restriction-check-1" class="w-5 h-5 rounded-full border-2 border-amber-400 bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fas fa-clock text-[10px] text-amber-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[13px] font-semibold text-[#303030]" id="restriction-text-1">Wait for data indexing to complete</p>
+                                    <p class="text-[11px] text-gray-500" id="restriction-sub-1">Currently collecting data...</p>
+                                </div>
+                            </div>
+                            <div id="restriction-item-2" class="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200">
+                                <div id="restriction-check-2" class="w-5 h-5 rounded-full border-2 border-amber-400 bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fas fa-times text-[10px] text-amber-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-[13px] font-semibold text-[#303030]">Complete Guide Step 1: Activate App Embed</p>
+                                    <p class="text-[11px] text-gray-500">Select a theme and enable the app in Theme Editor</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                    <button type="button" id="restricted-modal-home-btn" class="bg-[#303030] text-white rounded-[6px] px-5 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors flex items-center gap-2">
+                        <i class="fas fa-home text-xs"></i>
+                        Go to Homepage
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 1: Theme Selection Modal -->
+    <div id="theme-modal" class="modal-wrapper fixed inset-0 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="theme-modal-overlay"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg pointer-events-auto max-h-[90vh] flex flex-col relative modal-content">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-[16px] font-semibold text-[#303030]">Select Your Theme</h3>
+                    <button type="button" id="close-theme-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-5 overflow-y-auto flex-1">
+                    <div id="theme-support-notice" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-5 relative">
+                        <button type="button" id="close-theme-notice" class="absolute top-3 right-3 text-blue-400 hover:text-blue-600 transition-colors p-1 rounded-full hover:bg-blue-100">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                        <p class="text-[13px] text-[#303030] leading-relaxed pr-6">
+                            <strong class="font-bold">Supported Themes:</strong> View the list of themes currently supported by our app <a href="#" class="font-bold underline hover:text-blue-800">[here]</a>.<br><br>
+                            If your theme is not listed, please contact us <a href="#" id="live-chat-link" class="font-bold underline hover:text-blue-800">via live chat</a> for assistance.
+                        </p>
+                    </div>
+                    <p class="text-[13px] text-[#303030] mb-4">Please choose a duplicate/draft theme to test the app before going live.</p>
+                    <div class="mb-4">
+                        <label class="block text-[14px] font-semibold text-[#303030] mb-2">Theme Selection</label>
+                        <div class="relative">
+                            <button type="button" id="theme-dropdown-btn" class="w-full border border-gray-300 rounded-[8px] px-4 py-2.5 text-[14px] text-[#303030] bg-white hover:bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors flex items-center justify-between">
+                                <span id="theme-dropdown-label" class="text-gray-500">-- Select a theme --</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                            </button>
+                            <div id="theme-dropdown-menu" class="hidden absolute z-10 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-auto">
+                                <div id="theme-dropdown-list" class="py-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                    <button type="button" id="theme-modal-cancel-btn" class="border border-gray-300 bg-white text-[#303030] rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-gray-100 transition-colors">Cancel</button>
+                    <button type="button" id="modal-save-btn" disabled class="bg-[#303030] text-white rounded-[6px] px-5 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: Enable App Embed Modal -->
+    <div id="editor-modal" class="modal-wrapper fixed inset-0 hidden">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="editor-modal-overlay"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-[980px] pointer-events-auto max-h-[90vh] flex flex-col relative modal-content">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-[16px] font-semibold text-[#303030]">Enable App Embed</h3>
+                    <button type="button" id="close-editor-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                <div class="px-6 py-6 flex-1">
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 shrink-0">
+                            <i class="fas fa-puzzle-piece text-lg"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-[14px] font-semibold text-[#303030] mb-2">Step 2: Enable App Embed in Theme Editor</p>
+                            <p class="text-[13px] text-gray-600">Selected theme: <strong id="editor-theme-display" class="text-[#303030]"></strong></p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-6 mb-6">
+                        <div class="flex items-center justify-center gap-1 whitespace-nowrap flex-wrap">
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[13px] shadow-md shrink-0">1</div>
+                                <span class="text-[13px] font-semibold text-gray-800">Theme Editor</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 text-sm mx-2 shrink-0"></i>
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[13px] shadow-md shrink-0">2</div>
+                                <span class="text-[13px] font-semibold text-gray-800">App Embeds</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 text-sm mx-2 shrink-0"></i>
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-[13px] shadow-md shrink-0">3</div>
+                                <span class="text-[13px] font-semibold text-gray-800">Enable App</span>
+                            </div>
+                            <i class="fas fa-arrow-right text-gray-400 text-sm mx-2 shrink-0"></i>
+                            <div class="flex items-center gap-2">
+                                <div class="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-[13px] shadow-md shrink-0">4</div>
+                                <span class="text-[13px] font-semibold text-gray-800">Save</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="editor-indexing-banner" class="rounded-lg p-4 mb-6 transition-all duration-300"></div>
+                </div>
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                    <button type="button" id="editor-modal-back-btn" class="border border-gray-300 bg-white text-[#303030] rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-gray-100 transition-colors">Back</button>
+                    <button type="button" id="enable-editor-modal-btn" class="bg-[#303030] text-white rounded-[6px] px-5 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed btn-disabled-overlay">
+                        <i class="fas fa-external-link-alt text-xs"></i>
+                        Enable App in Theme Editor
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // ========== STATE MANAGEMENT ==========
+        const AppState = {
+            isIndexing: true,
+            indexingComplete: false,
+            appEnabled: false,
+            indexingStartTime: null,
+            indexingDuration: 20000,
+            selectedTheme: '',
+            lastEnabledTheme: '',
+            firstEnableDone: false,
+            flowCompleted: false,
+            hasEnabledInEditor: false,
+            indexingInterval: null,
+            currentPage: 'home',
+            appToggleState: 'off',
+            searchSuggestionState: 'off'
+        };
+
+        const STORAGE_KEYS = {
+            APP_TOGGLE_STATE: 'findter_app_toggle_state',
+            SEARCH_SUGGESTION_TOGGLE_STATE: 'findter_search_suggestion_toggle_state',
+            INDEXING_COMPLETE: 'findter_indexing_complete',
+            SELECTED_THEME: 'findter_selected_theme',
+            LAST_ENABLED_THEME: 'findter_last_enabled_theme',
+            FIRST_ENABLE_DONE: 'findter_first_enable_done'
+        };
+
+        function loadPersistedState() {
+            var storedToggle = localStorage.getItem(STORAGE_KEYS.APP_TOGGLE_STATE);
+            var storedSearchSuggestion = localStorage.getItem(STORAGE_KEYS.SEARCH_SUGGESTION_TOGGLE_STATE);
+            var storedIndexing = localStorage.getItem(STORAGE_KEYS.INDEXING_COMPLETE);
+            var storedTheme = localStorage.getItem(STORAGE_KEYS.SELECTED_THEME);
+            var storedLastEnabled = localStorage.getItem(STORAGE_KEYS.LAST_ENABLED_THEME);
+            var storedFirstEnable = localStorage.getItem(STORAGE_KEYS.FIRST_ENABLE_DONE);
+
+            if (storedToggle) {
+                AppState.appToggleState = storedToggle;
+                AppState.appEnabled = storedToggle === 'on';
+            }
+
+            if (storedSearchSuggestion) {
+                AppState.searchSuggestionState = storedSearchSuggestion;
+            }
+
+            if (storedIndexing === 'true') {
+                AppState.indexingComplete = true;
+                AppState.isIndexing = false;
+            }
+
+            if (storedTheme) {
+                AppState.selectedTheme = storedTheme;
+            }
+
+            if (storedLastEnabled) {
+                AppState.lastEnabledTheme = storedLastEnabled;
+            }
+
+            if (storedFirstEnable === 'true') {
+                AppState.firstEnableDone = true;
+            }
+
+            // Enabled theme status is not tracked in the simplified flow.
+        }
+
+        // ========== ELEMENT REFERENCES ==========
+        const selectThemeBtn = document.getElementById('select-theme-btn');
+        const themeModal = document.getElementById('theme-modal');
+        const editorModal = document.getElementById('editor-modal');
+        const restrictedModal = document.getElementById('restricted-modal');
+        const themeDropdownBtn = document.getElementById('theme-dropdown-btn');
+        const themeDropdownLabel = document.getElementById('theme-dropdown-label');
+        const themeDropdownMenu = document.getElementById('theme-dropdown-menu');
+        const themeDropdownList = document.getElementById('theme-dropdown-list');
+        const guideThemeDropdownBtn = document.getElementById('guide-theme-dropdown-btn');
+        const guideThemeDropdownLabel = document.getElementById('guide-theme-dropdown-label');
+        const guideThemeDropdownMenu = document.getElementById('guide-theme-dropdown-menu');
+        const guideThemeDropdownList = document.getElementById('guide-theme-dropdown-list');
+        const guideThemeLivePill = document.getElementById('guide-theme-live-pill');
+        const modalSaveBtn = document.getElementById('modal-save-btn');
+        const enableEditorModalBtn = document.getElementById('enable-editor-modal-btn');
+        
+        const indexingBannerContainer = document.getElementById('indexing-banner-container');
+        const syncStatusBadge = document.getElementById('sync-status-badge');
+        const syncTimestamp = document.getElementById('sync-timestamp');
+        const manualSyncBtn = document.getElementById('manual-sync-btn');
+        const syncIcon = document.getElementById('sync-icon');
+        const syncBtnText = document.getElementById('sync-btn-text');
+
+        const editorIndexingBanner = document.getElementById('editor-indexing-banner');
+        const onboardingGuideCard = document.getElementById('onboarding-guide-card');
+        const goToFilterBtn = document.getElementById('go-to-filter-btn');
+        const filterLockHint = document.getElementById('filter-lock-hint');
+
+        const closeRestrictedModalBtn = document.getElementById('close-restricted-modal-btn');
+        const restrictedModalOverlay = document.getElementById('restricted-modal-overlay');
+        const restrictedModalHomeBtn = document.getElementById('restricted-modal-home-btn');
+        const restrictionItem1 = document.getElementById('restriction-item-1');
+        const restrictionCheck1 = document.getElementById('restriction-check-1');
+        const restrictionText1 = document.getElementById('restriction-text-1');
+        const restrictionSub1 = document.getElementById('restriction-sub-1');
+        const restrictionItem2 = document.getElementById('restriction-item-2');
+        const restrictionCheck2 = document.getElementById('restriction-check-2');
+
+        const closeThemeModalBtn = document.getElementById('close-theme-modal-btn');
+        const themeModalCancelBtn = document.getElementById('theme-modal-cancel-btn');
+        const themeModalOverlay = document.getElementById('theme-modal-overlay');
+        const closeEditorModalBtn = document.getElementById('close-editor-modal-btn');
+        const editorModalBackBtn = document.getElementById('editor-modal-back-btn');
+        const editorModalOverlay = document.getElementById('editor-modal-overlay');
+
+        const closeThemeNoticeBtn = document.getElementById('close-theme-notice');
+        const themeSupportNotice = document.getElementById('theme-support-notice');
+        const liveChatLink = document.getElementById('live-chat-link');
+
+        const appHeaderTitle = document.getElementById('app-header-title');
+        const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+        const resetIndexingBtn = document.getElementById('reset-indexing-btn');
+        const endIndexBtn = document.getElementById('end-index-btn');
+
+        const guideEnableEditorBtn = document.getElementById('guide-enable-editor-btn');
+        const editorThemeDisplay = document.getElementById('editor-theme-display');
+        const enableSearchSuggestionBtn = document.getElementById('enable-search-suggestion-btn');
+        const step4Checkbox = document.getElementById('step4-checkbox');
+
+        const floatingChatBtn = document.getElementById('floating-chat-btn');
+        const chatBubble = document.getElementById('chat-bubble');
+        const closeChatBubble = document.getElementById('close-chat-bubble');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+        const chatMessages = document.getElementById('chat-messages');
+        const chatBadge = document.getElementById('chat-badge');
+
+        const statusAppEmbed = document.getElementById('status-app-embed');
+        const statusSearchSuggestion = document.getElementById('status-search-suggestion');
+
+        const allNavItems = document.querySelectorAll('[data-page]');
+
+        const unifiedBannerContainers = {
+            home: document.getElementById('unified-status-banner'),
+            filter: document.getElementById('unified-banner-filter'),
+            search: document.getElementById('unified-banner-search'),
+            metafield: document.getElementById('unified-banner-metafield'),
+            design: document.getElementById('unified-banner-design'),
+            'analytics-app': document.getElementById('unified-banner-analytics-app'),
+            advanced: document.getElementById('unified-banner-advanced')
+        };
+
+        // ========== LISTEN FOR EDITOR TOGGLE CHANGES ==========
+        window.addEventListener('storage', function(e) {
+            if (e.key === STORAGE_KEYS.APP_TOGGLE_STATE) {
+                var newState = e.newValue || 'off';
+                console.log('Detected app toggle change:', newState);
+                AppState.appToggleState = newState;
+                AppState.appEnabled = newState === 'on';
+                if (newState === 'on' && !AppState.firstEnableDone) {
+                    AppState.firstEnableDone = true;
+                    AppState.lastEnabledTheme = AppState.selectedTheme;
+                    localStorage.setItem(STORAGE_KEYS.FIRST_ENABLE_DONE, 'true');
+                    localStorage.setItem(STORAGE_KEYS.LAST_ENABLED_THEME, AppState.lastEnabledTheme);
+                }
+                if (themeModal && !themeModal.classList.contains('hidden')) {
+                    renderThemeDropdown();
+                    updateThemeModalAction();
+                }
+                updateAllBanners();
+                updateGuideStep1Status();
+                updateLockStates();
+                updateFindterStatus();
+                updateSearchSuggestionGuideStatus();
+            }
+
+            if (e.key === STORAGE_KEYS.SEARCH_SUGGESTION_TOGGLE_STATE) {
+                var suggestionState = e.newValue || 'off';
+                AppState.searchSuggestionState = suggestionState;
+                updateFindterStatus();
+                updateSearchSuggestionGuideStatus();
+            }
+        });
+
+        // ========== BANNER GENERATION FUNCTIONS ==========
+        function getSimpleIndexingBannerHTML() {
+            return '<div class="unified-status-banner indexing-state rounded-lg p-4 border border-amber-300">' +
+                '<div class="flex items-start gap-3">' +
+                    '<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0 mt-0.5 animate-pulse-custom">' +
+                        '<i class="fas fa-exclamation-triangle text-sm"></i>' +
+                    '</div>' +
+                    '<div class="flex-1">' +
+                        '<p class="text-[14px] font-semibold text-amber-800 mb-1">Collecting data</p>' +
+                        '<p class="text-[13px] text-amber-700 leading-relaxed">' +
+                            'Up-to-date data are being collected. Please wait until this process is complete before continuing with the app.' +
+                        '</p>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }
+
+        function getFirstTimeCompleteBannerHTML() {
+            return '<div class="unified-status-banner complete-state rounded-lg p-4 border border-amber-300">' +
+                '<div class="flex items-start gap-3">' +
+                    '<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0 mt-0.5">' +
+                        '<i class="fas fa-check-circle text-sm"></i>' +
+                    '</div>' +
+                    '<div class="flex-1">' +
+                        '<p class="text-[14px] font-semibold text-amber-800 mb-1">Data indexing is completed.</p>' +
+                        '<p class="text-[13px] text-amber-700 leading-relaxed mb-3">' +
+                            'Your data has been successfully indexed. To activate the app on your storefront, please enable it in your Theme Editor.' +
+                        '</p>' +
+                        '<button onclick="window.handleEnableAppFromBanner()" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors shadow-sm inline-flex items-center gap-2">' +
+                            '<i class="fas fa-external-link-alt text-xs"></i>' +
+                            'Enable App in Theme Editor' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }
+
+        function getReEnableReminderBannerHTML() {
+            return '<div class="unified-status-banner disabled-state rounded-lg p-4 border border-red-300">' +
+                '<div class="flex items-start gap-3">' +
+                    '<div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 shrink-0 mt-0.5 animate-pulse-custom">' +
+                        '<i class="fas fa-exclamation-circle text-sm"></i>' +
+                    '</div>' +
+                    '<div class="flex-1">' +
+                        '<p class="text-[14px] font-semibold text-red-800 mb-1">Data indexing is completed.</p>' +
+                        '<p class="text-[13px] text-red-700 leading-relaxed mb-3">' +
+                            'Your data has been successfully indexed. To activate the app on your storefront, please enable it in your Theme Editor.' +
+                        '</p>' +
+                        '<button onclick="window.handleEnableAppFromBanner()" class="bg-[#303030] text-white rounded-[6px] px-4 py-2 text-[13px] font-medium hover:bg-[#4a4a4a] transition-colors shadow-sm inline-flex items-center gap-2">' +
+                            '<i class="fas fa-external-link-alt text-xs"></i>' +
+                            'Enable App in Theme Editor' +
+                        '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }
+
+        // ========== UPDATE ALL BANNERS ==========
+        function updateAllBanners() {
+            var bannerHTML = '';
+            var showBanner = true;
+
+            if (!AppState.indexingComplete) {
+                bannerHTML = getSimpleIndexingBannerHTML();
+            } else if (!AppState.firstEnableDone) {
+                bannerHTML = getFirstTimeCompleteBannerHTML();
+            } else {
+                showBanner = false;
+            }
+
+            Object.keys(unifiedBannerContainers).forEach(function(page) {
+                var container = unifiedBannerContainers[page];
+                if (container) {
+                    if (showBanner) {
+                        container.classList.remove('hidden');
+                        container.innerHTML = bannerHTML;
+                    } else {
+                        container.classList.add('hidden');
+                        container.innerHTML = '';
+                    }
+                }
+            });
+
+            indexingBannerContainer.classList.add('hidden');
+            indexingBannerContainer.innerHTML = '';
+        }
+
+        // ========== APP TOGGLE HELPERS ==========
+        function setAppToggleState(state) {
+            AppState.appToggleState = state;
+            AppState.appEnabled = state === 'on';
+            if (state === 'on' && !AppState.firstEnableDone) {
+                AppState.firstEnableDone = true;
+                AppState.lastEnabledTheme = AppState.selectedTheme;
+                localStorage.setItem(STORAGE_KEYS.FIRST_ENABLE_DONE, 'true');
+                localStorage.setItem(STORAGE_KEYS.LAST_ENABLED_THEME, AppState.lastEnabledTheme);
+            }
+            localStorage.setItem(STORAGE_KEYS.APP_TOGGLE_STATE, state);
+            if (themeModal && !themeModal.classList.contains('hidden')) {
+                renderThemeDropdown();
+                updateThemeModalAction();
+            }
+            updateLockStates();
+            updateGuideStep1Status();
+            updateAllBanners();
+        }
+
+        function updateGuideStep1Status() {
+            var step1Initial = document.getElementById('step1-initial');
+            var step1Completed = document.getElementById('step1-completed');
+            var step1Checkbox = document.getElementById('step1-checkbox');
+            var hasTheme = Boolean(AppState.selectedTheme);
+            var appOn = AppState.appToggleState === 'on';
+            var isThemeEnabled = AppState.selectedTheme && AppState.selectedTheme === AppState.lastEnabledTheme;
+            var shouldShowCompleted = hasTheme && AppState.firstEnableDone;
+            var isLive = AppState.firstEnableDone && appOn && isThemeEnabled;
+
+            if (step1Initial && step1Completed) {
+                if (shouldShowCompleted) {
+                    step1Initial.classList.add('hidden');
+                    step1Completed.classList.remove('hidden');
+                } else {
+                    step1Initial.classList.remove('hidden');
+                    step1Completed.classList.add('hidden');
+                }
+            }
+
+            if (guideThemeDropdownLabel) {
+                guideThemeDropdownLabel.textContent = AppState.selectedTheme || '-- Select a theme --';
+            }
+
+            if (guideThemeLivePill) {
+                guideThemeLivePill.classList.toggle('hidden', !isLive);
+            }
+
+            renderThemeDropdown();
+
+            if (step1Checkbox) {
+                var complete = AppState.firstEnableDone && appOn && isThemeEnabled;
+                step1Checkbox.setAttribute('data-completed', complete ? 'true' : 'false');
+                step1Checkbox.classList.toggle('bg-[#303030]', complete);
+                step1Checkbox.classList.toggle('text-white', complete);
+                step1Checkbox.classList.toggle('border-2', !complete);
+                step1Checkbox.classList.toggle('border-dashed', !complete);
+                step1Checkbox.classList.toggle('border-gray-400', !complete);
+                step1Checkbox.classList.toggle('bg-white', !complete);
+                var checkIcon = step1Checkbox.querySelector('.fa-check');
+                if (checkIcon) checkIcon.classList.toggle('text-transparent', !complete);
+            }
+
+            if (guideEnableEditorBtn) {
+                var needsEnable = hasTheme && AppState.indexingComplete && (!appOn || !isThemeEnabled);
+                guideEnableEditorBtn.classList.toggle('hidden', !needsEnable);
+            }
+
+            updateProgressAndMessages();
+            updateFindterStatus();
+            updateSearchSuggestionGuideStatus();
+        }
+
+        function updateSearchSuggestionGuideStatus() {
+            if (!step4Checkbox) return;
+            var suggestionOn = AppState.searchSuggestionState === 'on';
+            step4Checkbox.setAttribute('data-completed', suggestionOn ? 'true' : 'false');
+            step4Checkbox.classList.toggle('bg-[#303030]', suggestionOn);
+            step4Checkbox.classList.toggle('text-white', suggestionOn);
+            step4Checkbox.classList.toggle('border-2', !suggestionOn);
+            step4Checkbox.classList.toggle('border-dashed', !suggestionOn);
+            step4Checkbox.classList.toggle('border-gray-400', !suggestionOn);
+            step4Checkbox.classList.toggle('bg-white', !suggestionOn);
+            var checkIcon = step4Checkbox.querySelector('.fa-check');
+            if (checkIcon) checkIcon.classList.toggle('text-transparent', !suggestionOn);
+            updateProgressAndMessages();
+        }
+
+        function shouldCollapseOnboardingOnReload() {
+            var appLive = AppState.firstEnableDone && AppState.appToggleState === 'on' && AppState.selectedTheme === AppState.lastEnabledTheme;
+            var suggestionLive = AppState.searchSuggestionState === 'on';
+            return appLive && suggestionLive;
+        }
+
+        function collapseOnboardingGuide() {
+            var toggle = document.querySelector('.guide-toggle[data-target="guide-body-1"]');
+            var body = document.getElementById('guide-body-1');
+            if (!toggle || !body) return;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            body.classList.add('hidden');
+        }
+
+        function updateFindterStatus() {
+            var appLive = AppState.appToggleState === 'on' && AppState.firstEnableDone;
+            var suggestionLive = AppState.searchSuggestionState === 'on';
+
+            if (statusAppEmbed) {
+                statusAppEmbed.className = appLive
+                    ? 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-green-200 bg-white text-[11px] font-semibold text-green-700'
+                    : 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600';
+                statusAppEmbed.innerHTML = appLive
+                    ? '<span class="w-2 h-2 rounded-full bg-green-500"></span>Active'
+                    : '<span class="w-2 h-2 rounded-full bg-gray-400"></span>Inactive';
+            }
+
+            if (statusSearchSuggestion) {
+                statusSearchSuggestion.className = suggestionLive
+                    ? 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-green-200 bg-white text-[11px] font-semibold text-green-700'
+                    : 'flex items-center gap-2 px-2.5 py-1 rounded-md border border-gray-200 bg-white text-[11px] font-semibold text-gray-600';
+                statusSearchSuggestion.innerHTML = suggestionLive
+                    ? '<span class="w-2 h-2 rounded-full bg-green-500"></span>Active'
+                    : '<span class="w-2 h-2 rounded-full bg-gray-400"></span>Inactive';
+            }
+        }
+
+        // ========== ENABLE APP FROM BANNER ==========
+        window.handleEnableAppFromBanner = function() {
+            if (!AppState.indexingComplete) {
+                alert('Please wait for indexing to complete first.');
+                return;
+            }
+            if (!AppState.selectedTheme) {
+                openThemeModal();
+                return;
+            }
+            openEditorWithAutoEnable();
+        };
+
+        function openEditorWithAutoEnable() {
+            if (!AppState.indexingComplete) {
+                alert('Please wait for indexing to complete first.');
+                return;
+            }
+            console.log('Opening Editor.html with auto-enable...');
+            setAppToggleState('on');
+            AppState.hasEnabledInEditor = true;
+            AppState.firstEnableDone = true;
+            AppState.lastEnabledTheme = AppState.selectedTheme;
+            localStorage.setItem(STORAGE_KEYS.FIRST_ENABLE_DONE, 'true');
+            localStorage.setItem(STORAGE_KEYS.LAST_ENABLED_THEME, AppState.lastEnabledTheme);
+            window.open('Editor.html?autoEnable=1', '_blank');
+            updateGuideStep1Status();
+        }
+
+        function openEditorWithSearchSuggestionEnable() {
+            if (!AppState.indexingComplete) {
+                alert('Please wait for indexing to complete first.');
+                return;
+            }
+            if (!AppState.selectedTheme) {
+                openThemeModal();
+                return;
+            }
+            window.open('Editor.html?autoEnableSuggestion=1', '_blank');
+        }
+
+        // ========== ENABLE APP FROM MODAL 2 (Opens Editor.html) ==========
+        function handleEnableFromModal2() {
+            if (!AppState.indexingComplete) {
+                alert('Please wait for indexing to complete first.');
+                return;
+            }
+
+            openEditorWithAutoEnable();
+            closeEditorModal();
+        }
+
+        // ========== PAGE NAVIGATION ==========
+        var pageNames = {
+            'home': 'Homepage',
+            'filter': 'Filter',
+            'search': 'Search',
+            'metafield': 'Metafield',
+            'design': 'Filter & Product Grid Design',
+            'analytics-app': 'Analytics',
+            'advanced': 'Advanced Features'
+        };
+
+        function navigateToPage(pageId) {
+            var pages = document.querySelectorAll('.page-view');
+            pages.forEach(function(p) { p.classList.remove('active'); });
+
+            var targetPage = document.getElementById('page-' + pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                AppState.currentPage = pageId;
+
+                allNavItems.forEach(function(item) {
+                    item.classList.remove('nav-active');
+                    if (item.getAttribute('data-page') === pageId) {
+                        item.classList.add('nav-active');
+                    }
+                });
+
+                renderSubPageContent(pageId);
+                updateAllBanners();
+
+            }
+        }
+
+        function renderSubPageContent(pageId) {
+            var container = document.getElementById(pageId + '-page-content');
+            if (!container) return;
+
+            var canAccess = canAccessFeatures();
+            var showPreview = !canAccess;
+
+            container.innerHTML = 
+                '<div class="bg-white rounded-[8px] shadow-sm border border-gray-200 p-8">' +
+                    '<div class="flex items-center gap-4 mb-6">' +
+                        '<div class="w-12 h-12 bg-' + (showPreview ? 'blue' : 'gray') + '-100 rounded-xl flex items-center justify-center">' +
+                            '<i class="fas fa-' + getPageIcon(pageId) + ' text-' + (showPreview ? 'blue' : 'gray') + '-500 text-xl"></i>' +
+                        '</div>' +
+                        '<div>' +
+                            '<h2 class="text-[18px] font-semibold text-[#303030]">' + pageNames[pageId] + '</h2>' +
+                            '<p class="text-[13px] ' + (showPreview ? 'text-blue-600' : 'text-gray-500') + '">' +
+                                (showPreview ? '<i class="fas fa-info-circle mr-1"></i> Available for preview' : 'Configure settings here') +
+                            '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">' +
+                        generatePlaceholderCards(showPreview) +
+                    '</div>' +
+                '</div>';
+        }
+
+        function generatePlaceholderCards(isPreview) {
+            var cards = [
+                { title: 'Configuration', icon: 'cog', desc: 'Main settings' },
+                { title: 'Display Options', icon: 'palette', desc: 'Visual customization' },
+                { title: 'Advanced Settings', icon: 'sliders-h', desc: 'Fine-tuning options' }
+            ];
+            
+            var html = '';
+            cards.forEach(function(card) {
+                html += '<div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors ' + (isPreview ? 'opacity-75' : '') + '">' +
+                    '<div class="flex items-center gap-3 mb-3">' +
+                        '<div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">' +
+                            '<i class="fas fa-' + card.icon + ' text-gray-500 text-sm"></i>' +
+                        '</div>' +
+                        '<h4 class="font-medium text-[14px] text-[#303030]">' + card.title + '</h4>' +
+                    '</div>' +
+                    '<p class="text-[12px] text-gray-500">' + card.desc + '</p>' +
+                    (isPreview ? '<div class="mt-3 text-[11px] text-blue-500 font-medium"><i class="fas fa-eye mr-1"></i> Preview available</div>' : '') +
+                '</div>';
+            });
+            return html;
+        }
+
+        function getPageIcon(pageId) {
+            var icons = {
+                'filter': 'filter',
+                'search': 'search',
+                'metafield': 'database',
+                'design': 'th-large',
+                'analytics-app': 'chart-bar',
+                'advanced': 'cogs'
+            };
+            return icons[pageId] || 'file';
+        }
+
+        allNavItems.forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                var page = this.getAttribute('data-page');
+                if (!page) return;
+
+                navigateToPage(page);
+            });
+        });
+
+        if (sidebarToggleBtn) {
+            sidebarToggleBtn.addEventListener('click', function() {
+                document.body.classList.toggle('sidebar-collapsed');
+            });
+        }
+
+        if (appHeaderTitle) {
+            appHeaderTitle.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToPage('home');
+            });
+        }
+
+        if (goToFilterBtn) {
+            goToFilterBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToPage('filter');
+            });
+        }
+
+        if (guideEnableEditorBtn) {
+            guideEnableEditorBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (!AppState.selectedTheme) {
+                    openThemeModal();
+                    return;
+                }
+                openEditorWithAutoEnable();
+            });
+        }
+
+        if (enableSearchSuggestionBtn) {
+            enableSearchSuggestionBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openEditorWithSearchSuggestionEnable();
+            });
+        }
+
+        // ========== INDEXING SIMULATION ==========
+        function getCurrentTimestamp() {
+            var now = new Date();
+            var h = String(now.getHours()).padStart(2, '0');
+            var m = String(now.getMinutes()).padStart(2, '0');
+            var s = String(now.getSeconds()).padStart(2, '0');
+            var d = String(now.getDate()).padStart(2, '0');
+            var mo = String(now.getMonth() + 1).padStart(2, '0');
+            var y = now.getFullYear();
+            return h + ':' + m + ':' + s + ' ' + d + '/' + mo + '/' + y;
+        }
+
+        function showIndexingInProgress() {
+            syncStatusBadge.className = 'bg-amber-100 text-amber-800 text-[11px] px-2 py-0.5 rounded-full font-semibold';
+            syncStatusBadge.textContent = 'In progress';
+            syncTimestamp.textContent = getCurrentTimestamp();
+            
+            syncIcon.className = 'fas fa-sync-alt text-gray-400 text-sm animate-spin';
+            syncBtnText.textContent = 'Syncing...';
+            manualSyncBtn.disabled = true;
+            manualSyncBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            updateAllBanners();
+            updateEditorModalBanner();
+        }
+
+        function showIndexingComplete() {
+            AppState.isIndexing = false;
+            AppState.indexingComplete = true;
+
+            if (AppState.indexingInterval) {
+                clearInterval(AppState.indexingInterval);
+                AppState.indexingInterval = null;
+            }
+
+            localStorage.setItem(STORAGE_KEYS.INDEXING_COMPLETE, 'true');
+
+            syncStatusBadge.className = 'bg-[#cbf1c4] text-[#1f5119] text-[11px] px-2 py-0.5 rounded-full font-semibold';
+            syncStatusBadge.textContent = 'Completed';
+            syncTimestamp.textContent = getCurrentTimestamp();
+            
+            syncIcon.className = 'fas fa-sync-alt text-gray-500 text-sm';
+            syncBtnText.textContent = 'Manual sync';
+            manualSyncBtn.disabled = false;
+            manualSyncBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+            updateRestrictedModalContent();
+            updateEditorModalBanner();
+            checkAndUnlockFeatures();
+            updateAllBanners();
+
+            if (AppState.currentPage !== 'home') {
+                renderSubPageContent(AppState.currentPage);
+            }
+        }
+
+        function forceEndIndexing() {
+            if (AppState.indexingInterval) {
+                clearInterval(AppState.indexingInterval);
+                AppState.indexingInterval = null;
+            }
+            setTimeout(function() { showIndexingComplete(); }, 300);
+        }
+
+        function startIndexingSimulation() {
+            AppState.isIndexing = true;
+            AppState.indexingComplete = false;
+            AppState.indexingStartTime = Date.now();
+
+            showIndexingInProgress();
+            updateLockStates();
+
+            var startTime = Date.now();
+            var duration = AppState.indexingDuration;
+
+            AppState.indexingInterval = setInterval(function() {
+                var elapsed = Date.now() - startTime;
+                var progress = Math.min((elapsed / duration) * 100, 100);
+                
+                if (progress >= 100) {
+                    clearInterval(AppState.indexingInterval);
+                    AppState.indexingInterval = null;
+                    setTimeout(function() { showIndexingComplete(); }, 300);
+                }
+            }, 100);
+        }
+
+        function resetIndexing() {
+            if (AppState.indexingInterval) {
+                clearInterval(AppState.indexingInterval);
+                AppState.indexingInterval = null;
+            }
+            
+            AppState.isIndexing = true;
+            AppState.indexingComplete = false;
+            AppState.appEnabled = false;
+            AppState.flowCompleted = false;
+            AppState.hasEnabledInEditor = false;
+            AppState.selectedTheme = '';
+            AppState.lastEnabledTheme = '';
+            AppState.firstEnableDone = false;
+            AppState.appToggleState = 'off';
+
+            localStorage.removeItem(STORAGE_KEYS.APP_TOGGLE_STATE);
+            localStorage.removeItem(STORAGE_KEYS.INDEXING_COMPLETE);
+            localStorage.removeItem(STORAGE_KEYS.SELECTED_THEME);
+            localStorage.removeItem(STORAGE_KEYS.LAST_ENABLED_THEME);
+            localStorage.removeItem(STORAGE_KEYS.FIRST_ENABLE_DONE);
+            
+            startIndexingSimulation();
+            updateLockStates();
+            
+            var step1Initial = document.getElementById('step1-initial');
+            var step1Completed = document.getElementById('step1-completed');
+            var step1Checkbox = document.getElementById('step1-checkbox');
+            
+            if (step1Initial) step1Initial.classList.remove('hidden');
+            if (step1Completed) step1Completed.classList.add('hidden');
+            if (step1Checkbox) {
+                step1Checkbox.setAttribute('data-completed', 'false');
+                step1Checkbox.classList.remove('bg-[#303030]', 'text-white');
+                step1Checkbox.classList.add('border-2', 'border-dashed', 'border-gray-400', 'bg-white');
+                var checkIcon = step1Checkbox.querySelector('.fa-check');
+                if (checkIcon) checkIcon.classList.add('text-transparent');
+            }
+
+            updateProgressAndMessages();
+            renderSubPageContent(AppState.currentPage);
+            updateAllBanners();
+            updateGuideStep1Status();
+        }
+
+        // ========== EDITOR MODAL BANNER ==========
+        function updateEditorModalBanner() {
+            if (!editorIndexingBanner) return;
+
+            if (!AppState.indexingComplete) {
+                editorIndexingBanner.className = 'rounded-lg p-4 mb-6 transition-all duration-300 bg-amber-50 border border-amber-200';
+                editorIndexingBanner.innerHTML = 
+                    '<div class="flex items-start gap-3">' +
+                        '<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0 mt-0.5 animate-pulse-custom">' +
+                            '<i class="fas fa-exclamation-triangle text-sm"></i>' +
+                        '</div>' +
+                        '<div class="flex-1">' +
+                            '<p class="text-[14px] font-semibold text-amber-800 mb-1">Please wait for indexing to complete</p>' +
+                            '<p class="text-[13px] text-amber-700 leading-relaxed">Up-to-date data are being collected. Please wait until this process is complete before continuing with the app.</p>' +
+                        '</div>' +
+                    '</div>';
+
+                if (enableEditorModalBtn) {
+                    enableEditorModalBtn.disabled = true;
+                    enableEditorModalBtn.classList.add('btn-disabled-overlay');
+                }
+            } else {
+                editorIndexingBanner.className = 'rounded-lg p-4 mb-6 transition-all duration-300 bg-emerald-50 border border-emerald-200';
+                editorIndexingBanner.innerHTML = 
+                    '<div class="flex items-start gap-3">' +
+                        '<div class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 shrink-0 mt-0.5">' +
+                            '<i class="fas fa-check-circle text-sm"></i>' +
+                        '</div>' +
+                        '<div class="flex-1">' +
+                            '<p class="text-[14px] font-semibold text-emerald-800 mb-1">Data indexing is complete!</p>' +
+                            '<p class="text-[13px] text-emerald-700 leading-relaxed">You can now proceed to enable the app in your Theme Editor.</p>' +
+                        '</div>' +
+                    '</div>';
+
+                if (enableEditorModalBtn) {
+                    enableEditorModalBtn.disabled = false;
+                    enableEditorModalBtn.classList.remove('btn-disabled-overlay');
+                }
+            }
+        }
+
+        // ========== LOCK / UNLOCK LOGIC ==========
+        function canAccessFeatures() {
+            return AppState.indexingComplete && AppState.appToggleState === 'on';
+        }
+
+        function updateLockStates() {
+            var canAccess = canAccessFeatures();
+            
+            if (goToFilterBtn) goToFilterBtn.disabled = false;
+            if (filterLockHint) filterLockHint.classList.add('hidden');
+
+            updateEditorModalBanner();
+        }
+
+        function checkAndUnlockFeatures() {
+            updateLockStates();
+        }
+
+        // ========== RESTRICTED MODAL ==========
+        function showRestrictedModal() {
+            updateRestrictedModalContent();
+            restrictedModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateRestrictedModalContent() {
+            if (AppState.indexingComplete) {
+                restrictionItem1.className = 'flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200';
+                restrictionCheck1.className = 'w-5 h-5 rounded-full border-2 border-green-500 bg-green-500 flex items-center justify-center shrink-0 mt-0.5';
+                restrictionCheck1.innerHTML = '<i class="fas fa-check text-[10px] text-white"></i>';
+                restrictionText1.textContent = 'Data indexing complete';
+                restrictionSub1.textContent = 'All data collected successfully';
+            } else {
+                restrictionItem1.className = 'flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200';
+                restrictionCheck1.className = 'w-5 h-5 rounded-full border-2 border-amber-400 bg-amber-50 flex items-center justify-center shrink-0 mt-0.5';
+                restrictionCheck1.innerHTML = '<i class="fas fa-clock text-[10px] text-amber-500"></i>';
+                restrictionText1.textContent = 'Wait for data indexing to complete';
+                restrictionSub1.textContent = 'Currently collecting data...';
+            }
+
+            if (AppState.appToggleState === 'on') {
+                restrictionItem2.className = 'flex items-start gap-3 p-3 rounded-lg bg-green-50 border border-green-200';
+                restrictionCheck2.className = 'w-5 h-5 rounded-full border-2 border-green-500 bg-green-500 flex items-center justify-center shrink-0 mt-0.5';
+                restrictionCheck2.innerHTML = '<i class="fas fa-check text-[10px] text-white"></i>';
+            } else {
+                restrictionItem2.className = 'flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-200';
+                restrictionCheck2.className = 'w-5 h-5 rounded-full border-2 border-amber-400 bg-amber-50 flex items-center justify-center shrink-0 mt-0.5';
+                restrictionCheck2.innerHTML = '<i class="fas fa-times text-[10px] text-amber-500"></i>';
+            }
+        }
+
+        function closeRestrictedModalAndGoHome() {
+            restrictedModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            navigateToPage('home');
+            triggerGuideAttentionAnimation();
+        }
+
+        window.triggerGuideAttentionAnimation = function() {
+            if (onboardingGuideCard) {
+                onboardingGuideCard.classList.remove('guide-attention-animation');
+                void onboardingGuideCard.offsetWidth;
+                onboardingGuideCard.classList.add('guide-attention-animation');
+                onboardingGuideCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() { onboardingGuideCard.classList.remove('guide-attention-animation'); }, 1200);
+            }
+        };
+
+        if (closeRestrictedModalBtn) closeRestrictedModalBtn.addEventListener('click', closeRestrictedModalAndGoHome);
+        if (restrictedModalHomeBtn) restrictedModalHomeBtn.addEventListener('click', closeRestrictedModalAndGoHome);
+        if (restrictedModalOverlay) restrictedModalOverlay.addEventListener('click', closeRestrictedModalAndGoHome);
+
+        if (resetIndexingBtn) resetIndexingBtn.addEventListener('click', resetIndexing);
+        if (endIndexBtn) endIndexBtn.addEventListener('click', forceEndIndexing);
+
+        // ========== STEP PROGRESS ==========
+        function updateProgressAndMessages() {
+            var step1 = document.querySelector('.step-checkbox[data-step="1"]');
+            var step2 = document.querySelector('.step-checkbox[data-step="2"]');
+            var step3 = document.querySelector('.step-checkbox[data-step="3"]');
+            
+            var s1Done = step1 ? step1.getAttribute('data-completed') === 'true' : false;
+            var s2Done = step2 ? step2.getAttribute('data-completed') === 'true' : false;
+            var s3Done = step3 ? step3.getAttribute('data-completed') === 'true' : false;
+            
+            var total = 4;
+            var step4 = document.querySelector('.step-checkbox[data-step="4"]');
+            var s4Done = step4 ? step4.getAttribute('data-completed') === 'true' : false;
+            var count = [s1Done, s2Done, s3Done, s4Done].filter(Boolean).length;
+            var pct = (count / total) * 100;
+            
+            var progressBar = document.getElementById('progress-bar');
+            var progressText = document.getElementById('progress-text');
+            
+            if (progressBar) {
+                progressBar.style.width = pct + '%';
+                progressBar.className = 'bg-black h-full rounded-full transition-all duration-500';
+                if (count === 1) progressBar.classList.add('bg-black');
+                else if (count === 2) progressBar.classList.add('bg-yellow-400');
+                else if (count === 3) progressBar.classList.add('bg-green-500');
+                else progressBar.classList.add('bg-gray-400');
+            }
+            
+            if (progressText) progressText.innerText = count + '/' + total + ' completed';
+            
+            var container = document.getElementById('congrat-message-container');
+            if (container) {
+                if (s1Done && s3Done) {
+                    container.innerHTML = 
+                        '<div class="p-3 bg-green-50 border border-green-100 rounded-lg flex items-start gap-3">' +
+                            '<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-green-600 shrink-0"><i class="fas fa-rocket"></i></div>' +
+                            '<div class="flex-1">' +
+                                '<p class="text-[13px] font-semibold text-green-800 leading-tight">Great job! Basic setup is complete. Explore our <a href="#" class="underline font-bold text-green-700 hover:text-green-900">advanced features</a>.</p>' +
+                                '<p class="text-[11px] text-green-700 mt-0.5">You can always reopen the guide to review steps.</p>' +
+                            '</div>' +
+                        '</div>';
+                    container.classList.remove('hidden');
+                } else {
+                    container.classList.add('hidden');
+                    container.innerHTML = '';
+                }
+            }
+        }
+        
+        document.querySelectorAll('.step-checkbox').forEach(function(cb) {
+            cb.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (this === step4Checkbox) {
+                    var nextState = AppState.searchSuggestionState === 'on' ? 'off' : 'on';
+                    AppState.searchSuggestionState = nextState;
+                    localStorage.setItem(STORAGE_KEYS.SEARCH_SUGGESTION_TOGGLE_STATE, nextState);
+                    updateFindterStatus();
+                    updateSearchSuggestionGuideStatus();
+                    return;
+                }
+                var done = this.getAttribute('data-completed') === 'true';
+                var icon = this.querySelector('.fa-check');
+                if (done) {
+                    this.setAttribute('data-completed', 'false');
+                    this.classList.remove('bg-[#303030]', 'text-white');
+                    this.classList.add('border-2', 'border-dashed', 'border-gray-400', 'bg-white');
+                    icon.classList.add('text-transparent');
+                } else {
+                    this.setAttribute('data-completed', 'true');
+                    this.classList.add('bg-[#303030]', 'text-white');
+                    this.classList.remove('border-2', 'border-dashed', 'border-gray-400', 'bg-white');
+                    icon.classList.remove('text-transparent');
+                }
+                updateProgressAndMessages();
+            });
+        });
+        
+        document.querySelectorAll('.guide-toggle').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var target = document.getElementById(this.dataset.target);
+                var expanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', String(!expanded));
+                this.innerHTML = expanded ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-up"></i>';
+                if (target) target.classList.toggle('hidden', expanded);
+            });
+        });
+        
+        document.querySelectorAll('.guide-step-toggle').forEach(function(header) {
+            header.addEventListener('click', function() {
+                var content = document.getElementById(this.dataset.target);
+                var icon = this.querySelector('.fa-chevron-up, .fa-chevron-down');
+                if (content) {
+                    var hid = content.classList.toggle('hidden');
+                    if (icon) {
+                        icon.classList.toggle('fa-chevron-up', !hid);
+                        icon.classList.toggle('fa-chevron-down', hid);
+                    }
+                }
+            });
+        });
+
+        // ========== CHAT ==========
+        function openChatWithMessage(msg) {
+            chatBubble.classList.add('active');
+            chatInput.value = msg;
+            chatBadge.classList.remove('hidden');
+            
+            setTimeout(function() {
+                addMessageToChat(msg, true);
+                chatInput.value = '';
+                setTimeout(function() { addMessageToChat("Thank you for reaching out!", false); }, 800);
+            }, 300);
+        }
+
+        function addMessageToChat(text, isUser) {
+            var div = document.createElement('div');
+            div.className = 'flex gap-2 ' + (isUser ? 'justify-end' : '');
+            
+            if (isUser) {
+                div.innerHTML = '<div class="bg-red-600 text-white rounded-lg rounded-tr-none px-3 py-2 text-[13px] max-w-[85%]">' + text + '</div>';
+            } else {
+                div.innerHTML = 
+                    '<div class="w-7 h-7 bg-red-100 rounded-full flex items-center justify-center text-red-600 shrink-0">' +
+                        '<i class="fas fa-robot text-xs"></i>' +
+                    '</div>' +
+                    '<div class="bg-gray-100 rounded-lg rounded-tl-none px-3 py-2 text-[13px] text-gray-700 max-w-[85%]">' + text + '</div>';
+            }
+            
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        floatingChatBtn.addEventListener('click', function() { chatBubble.classList.toggle('active'); });
+        closeChatBubble.addEventListener('click', function() { chatBubble.classList.remove('active'); });
+
+        sendChatBtn.addEventListener('click', function() {
+            var msg = chatInput.value.trim();
+            if (msg) {
+                addMessageToChat(msg, true);
+                chatInput.value = '';
+                setTimeout(function() { addMessageToChat("Thank you! We'll respond soon.", false); }, 600);
+            }
+        });
+
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendChatBtn.click();
+        });
+
+        // ========== THEME MODAL ==========
+        var THEMES = ['Dawn', 'Horizon v1', 'Horizon v2', 'Craft', 'Sense', 'Taste'];
+
+        function renderThemeDropdown() {
+            var label = AppState.selectedTheme ? AppState.selectedTheme : '-- Select a theme --';
+            if (themeDropdownLabel) themeDropdownLabel.textContent = label;
+            if (guideThemeDropdownLabel) guideThemeDropdownLabel.textContent = label;
+
+            var html = '';
+            THEMES.forEach(function(theme) {
+                var selected = AppState.selectedTheme === theme;
+                html +=
+                    '<button type="button" class="w-full px-4 py-2 text-left flex items-center justify-between text-[14px] ' +
+                        (selected ? 'bg-blue-50 text-[#303030]' : 'text-[#303030] hover:bg-gray-50') +
+                    '" data-theme="' + theme + '">' +
+                        '<span class="font-medium">' + theme + '</span>' +
+                    '</button>';
+            });
+
+            if (themeDropdownList) themeDropdownList.innerHTML = html;
+            if (guideThemeDropdownList) guideThemeDropdownList.innerHTML = html;
+        }
+
+        function updateThemeModalAction() {
+            if (!modalSaveBtn) return;
+            modalSaveBtn.textContent = 'Next';
+        }
+
+        function openThemeModal() {
+            if (themeModal) {
+                themeModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                renderThemeDropdown();
+                updateThemeModalAction();
+                if (modalSaveBtn) modalSaveBtn.disabled = !AppState.selectedTheme;
+            }
+        }
+
+        function closeThemeModal() {
+            if (themeModal) {
+                themeModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        if (selectThemeBtn) {
+            selectThemeBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openThemeModal();
+            });
+        }
+        
+        if (closeThemeModalBtn) closeThemeModalBtn.addEventListener('click', closeThemeModal);
+        if (themeModalCancelBtn) themeModalCancelBtn.addEventListener('click', closeThemeModal);
+        if (themeModalOverlay) themeModalOverlay.addEventListener('click', closeThemeModal);
+
+        if (closeThemeNoticeBtn && themeSupportNotice) {
+            closeThemeNoticeBtn.addEventListener('click', function() { themeSupportNotice.style.display = 'none'; });
+        }
+
+        if (liveChatLink) {
+            liveChatLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                closeThemeModal();
+                setTimeout(function() { openChatWithMessage("I need help with theme support"); }, 350);
+            });
+        }
+
+        if (themeDropdownBtn && themeDropdownMenu) {
+            themeDropdownBtn.addEventListener('click', function() {
+                themeDropdownMenu.classList.toggle('hidden');
+            });
+        }
+
+        if (guideThemeDropdownBtn && guideThemeDropdownMenu) {
+            guideThemeDropdownBtn.addEventListener('click', function() {
+                guideThemeDropdownMenu.classList.toggle('hidden');
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (themeDropdownMenu && themeDropdownBtn) {
+                var clickedInsideModal = themeDropdownMenu.contains(e.target) || themeDropdownBtn.contains(e.target);
+                if (!clickedInsideModal) {
+                    themeDropdownMenu.classList.add('hidden');
+                }
+            }
+            if (guideThemeDropdownMenu && guideThemeDropdownBtn) {
+                var clickedInsideGuide = guideThemeDropdownMenu.contains(e.target) || guideThemeDropdownBtn.contains(e.target);
+                if (!clickedInsideGuide) {
+                    guideThemeDropdownMenu.classList.add('hidden');
+                }
+            }
+        });
+
+        if (themeDropdownList) {
+            themeDropdownList.addEventListener('click', function(e) {
+                var row = e.target.closest('[data-theme]');
+                if (!row) return;
+                AppState.selectedTheme = row.getAttribute('data-theme');
+                localStorage.setItem(STORAGE_KEYS.SELECTED_THEME, AppState.selectedTheme);
+                renderThemeDropdown();
+                updateThemeModalAction();
+                if (modalSaveBtn) modalSaveBtn.disabled = !AppState.selectedTheme;
+                if (themeDropdownMenu) themeDropdownMenu.classList.add('hidden');
+            });
+        }
+
+        if (guideThemeDropdownList) {
+            guideThemeDropdownList.addEventListener('click', function(e) {
+                var row = e.target.closest('[data-theme]');
+                if (!row) return;
+                AppState.selectedTheme = row.getAttribute('data-theme');
+                localStorage.setItem(STORAGE_KEYS.SELECTED_THEME, AppState.selectedTheme);
+                renderThemeDropdown();
+                updateGuideStep1Status();
+                if (guideThemeDropdownMenu) guideThemeDropdownMenu.classList.add('hidden');
+            });
+        }
+
+        if (modalSaveBtn) {
+            modalSaveBtn.addEventListener('click', function() {
+                if (!AppState.selectedTheme) return;
+                localStorage.setItem(STORAGE_KEYS.SELECTED_THEME, AppState.selectedTheme);
+                updateThemeModalAction();
+
+                closeThemeModal();
+                setTimeout(function() { openEditorModal(); }, 250);
+            });
+        }
+
+        // ========== EDITOR MODAL ==========
+        function openEditorModal() {
+            if (editorModal) {
+                editorModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                if (editorThemeDisplay) editorThemeDisplay.textContent = AppState.selectedTheme;
+                updateEditorModalCloseButton();
+                updateEditorModalBanner();
+            }
+        }
+
+        function closeEditorModal() {
+            if (editorModal) {
+                editorModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                if (AppState.hasEnabledInEditor || AppState.flowCompleted) {
+                    completeFlow();
+                }
+            }
+        }
+
+        function goBackToThemeModal() {
+            if (editorModal) editorModal.classList.add('hidden');
+            setTimeout(function() { openThemeModal(); }, 150);
+        }
+
+        function completeFlow() {
+            if (AppState.flowCompleted) return;
+            AppState.flowCompleted = true;
+            AppState.appEnabled = AppState.appToggleState === 'on';
+
+            updateEditorModalCloseButton();
+            checkAndUnlockFeatures();
+            updateAllBanners();
+            updateGuideStep1Status();
+
+            if (AppState.currentPage !== 'home') {
+                renderSubPageContent(AppState.currentPage);
+            }
+        }
+
+        function updateEditorModalCloseButton() {
+            if (!closeEditorModalBtn) return;
+            if (AppState.hasEnabledInEditor || AppState.flowCompleted) {
+                closeEditorModalBtn.style.display = 'flex';
+                closeEditorModalBtn.style.visibility = 'visible';
+            } else {
+                closeEditorModalBtn.style.display = 'none';
+                closeEditorModalBtn.style.visibility = 'hidden';
+            }
+        }
+
+        if (closeEditorModalBtn) closeEditorModalBtn.addEventListener('click', closeEditorModal);
+        if (editorModalBackBtn) editorModalBackBtn.addEventListener('click', goBackToThemeModal);
+        
+        if (editorModalOverlay) {
+            editorModalOverlay.addEventListener('click', function() {
+                if (AppState.hasEnabledInEditor || AppState.flowCompleted) {
+                    closeEditorModal();
+                }
+            });
+        }
+
+        // Modal 2 button opens Editor.html
+        if (enableEditorModalBtn) {
+            enableEditorModalBtn.addEventListener('click', handleEnableFromModal2);
+        }
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (chatBubble && chatBubble.classList.contains('active')) {
+                    chatBubble.classList.remove('active');
+                    return;
+                }
+                if (restrictedModal && !restrictedModal.classList.contains('hidden')) {
+                    closeRestrictedModalAndGoHome();
+                    return;
+                }
+                if (themeModal && !themeModal.classList.contains('hidden')) {
+                    closeThemeModal();
+                }
+                if (editorModal && !editorModal.classList.contains('hidden')) {
+                    if (AppState.hasEnabledInEditor || AppState.flowCompleted) {
+                        closeEditorModal();
+                    }
+                }
+            }
+        });
+
+        // ========== INITIALIZATION ==========
+        console.log('Initializing Dashboard...');
+        loadPersistedState();
+        if (AppState.indexingComplete) {
+            showIndexingComplete();
+        } else {
+            startIndexingSimulation();
+        }
+        updateLockStates();
+        updateGuideStep1Status();
+        updateSearchSuggestionGuideStatus();
+        updateFindterStatus();
+        if (shouldCollapseOnboardingOnReload()) {
+            collapseOnboardingGuide();
+        }
+        
+        // ========== WHAT'S NEW DROPDOWN ==========
+        var whatsNewBtn = document.getElementById('whats-new-btn');
+        var whatsNewDropdown = document.getElementById('whats-new-dropdown');
+        var whatsNewBadge = document.getElementById('whats-new-badge');
+        var whatsNewUnread = 3;
+
+        if (whatsNewBtn && whatsNewDropdown) {
+            whatsNewBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var isHidden = whatsNewDropdown.classList.contains('hidden');
+                whatsNewDropdown.classList.toggle('hidden');
+                if (isHidden && whatsNewUnread > 0) {
+                    whatsNewUnread = 0;
+                    if (whatsNewBadge) whatsNewBadge.classList.add('hidden');
+                    document.querySelectorAll('.whats-new-unread-dot').forEach(function(d) {
+                        d.classList.add('hidden');
+                    });
+                    document.querySelectorAll('.whats-new-item').forEach(function(item) {
+                        item.style.background = '';
+                    });
+                }
+            });
+            document.addEventListener('click', function(e) {
+                if (!whatsNewDropdown.classList.contains('hidden') &&
+                    !whatsNewBtn.contains(e.target) &&
+                    !whatsNewDropdown.contains(e.target)) {
+                    whatsNewDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // ========== WELCOME CONTACT BUTTON ==========
+        var welcomeContactBtn = document.getElementById('welcome-contact-btn');
+        if (welcomeContactBtn && chatBubble) {
+            welcomeContactBtn.addEventListener('click', function() {
+                chatBubble.classList.add('active');
+                if (chatBadge) chatBadge.classList.add('hidden');
+            });
+        }
+
+        // ========== PLAN UPDATE BANNER (always visible, not dismissible per Built for Shopify policy-notice rules) ==========
+        // No dismiss/collapse wiring: Polaris Banner tone="info" here has no onDismiss.
+
+        // ========== LIMIT WARNING ALERT STRIP (Polaris Banner tone="warning", dismissible) ==========
+        var limitReachedBanner = document.getElementById('limit-reached-banner');
+        var limitReachedCloseBtn = document.getElementById('limit-reached-close-btn');
+        var limitReachedContactLink = document.getElementById('limit-reached-contact-link');
+
+        if (limitReachedCloseBtn && limitReachedBanner) {
+            limitReachedCloseBtn.addEventListener('click', function() {
+                limitReachedBanner.style.display = 'none';
+            });
+        }
+
+        if (limitReachedContactLink && chatBubble) {
+            limitReachedContactLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                chatBubble.classList.add('active');
+                if (chatBadge) chatBadge.classList.add('hidden');
+            });
+        }
+
+        // ========== PROMO BANNER 2 ==========
+        var promoBanner2 = document.getElementById('promo-banner-2');
+        var promoBanner2Close = document.getElementById('promo-banner-2-close');
+
+        if (promoBanner2Close && promoBanner2) {
+            promoBanner2Close.addEventListener('click', function() {
+                promoBanner2.style.display = 'none';
+            });
+        }
+
+        console.log('Ready!');
+    });
+    </script>
+    <link rel="stylesheet" href="polaris.css">
+</body>
+</html>

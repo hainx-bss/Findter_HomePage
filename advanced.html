@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Filter & Product Grid Design - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,450;14..32,550;14..32,650;14..32,700&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: #f6f6f7; color: #202223; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .card-square { aspect-ratio: 1 / 1; width: 100%; transform-origin: top center; transition: transform 0.3s ease; }
+    .editing [contenteditable="true"] { outline: 2px dashed #303030; outline-offset: 2px; border-radius: 4px; background: rgba(0, 91, 211, 0.06); }
+
+    .feature-card-wrapper { transition: all 0.3s ease; display: flex; justify-content: center; }
+
+    /* Modal Styling */
+    .modal-backdrop { background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(12px); }
+    .modal-container { background: white; color: #111213; border: 1px solid rgba(0, 0, 0, 0.1); box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25); }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+
+    .close-modal-btn { background: #000; color: #fff; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.2s; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .close-modal-btn:hover { transform: scale(1.1); background: #333; }
+
+    /* Carousel styles */
+    .carousel-track { display: flex; transition: transform 0.5s ease-in-out; }
+    .app-card-4 { display: flex; flex-direction: column; background: white; border: 1px solid #dfe3e8; border-radius: 1rem; padding: 1.5rem; width: calc(33.333% - 16px); min-height: 260px; flex-shrink: 0; transition: all 0.3s ease; }
+    .app-card-4 .logo-box { width: 56px; height: 56px; border-radius: 0.75rem; flex-shrink: 0; overflow: hidden; background: #f4f4f4; }
+    .app-card-4 .app-name { font-size: 15px; font-weight: 700; color: #111213; line-height: 1.2; }
+    .app-card-4 .tag { background: #f0f1ff; color: #5c6ac4; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; display: inline-block; width: fit-content; }
+    .app-card-4 .desc { color: #6d7175; font-size: 13px; line-height: 1.5; flex: 1; }
+    .app-card-4 .view-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: #5c6ac4; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; font-size: 13px; font-weight: 600; margin-top: 1rem; transition: background 0.2s; }
+    .app-card-4 .view-btn:hover { background: #4e5ba2; }
+
+    .view-toggle-btn.active, .mode-toggle-btn.active { background: #303030; color: white; border-color: #303030; }
+    .available-badge { background: #ffc453; color: #4a3a00; font-weight: 700; font-size: 10px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .buy-modal-backdrop { background: rgba(0,0,0,0.55); backdrop-filter: blur(6px); }
+    .card-zoom:hover { transform: translateY(-8px) scale(1.02); z-index: 40; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+    .expand-badge { opacity: 0; transform: translate(-50%, -40%); transition: all 0.3s ease; pointer-events: none; }
+    .group:hover .expand-badge { opacity: 1; transform: translate(-50%, -50%); }
+    .tooltip-box { display: none; opacity: 0; transition: opacity 0.2s ease; position: absolute; bottom: calc(100% + 12px); left: 50%; transform: translateX(-50%); width: 240px; z-index: 100; pointer-events: none; }
+    .group\/tooltip:hover .tooltip-box { display: block; opacity: 1; pointer-events: auto; }
+    .editing .tooltip-box.active { display: block !important; opacity: 1 !important; pointer-events: auto !important; }
+    .editing .group\/tooltip:hover .tooltip-box { display: none; }
+    .editing .group\/tooltip .tooltip-box.active { display: block; }
+
+    .nav-item.active { background: white; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #e1e3e5; }
+    .nav-item { border: 1px solid transparent; }
+
+    /* Master table */
+    .master-table th { background: #f6f6f7; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6d7175; padding: 12px; border-bottom: 1px solid #e1e3e5; letter-spacing: 0.04em; }
+    .master-table td { padding: 12px; border-bottom: 1px solid #f1f2f3; font-size: 13px; vertical-align: middle; }
+    .master-table tr:hover td { background: #fafbfb; }
+    .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch .slider { position: absolute; cursor: pointer; inset: 0; background: #cfd3d7; border-radius: 999px; transition: 0.2s; }
+    .switch .slider:before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+    .switch input:checked + .slider { background: #303030; }
+    .switch input:checked + .slider:before { transform: translateX(18px); }
+
+    /* Drag-and-drop row indicator */
+    .drag-over-top td { border-top: 2px solid #303030 !important; }
+    tr.dragging { opacity: 0.4; }
+
+    /* Chatbox Styling */
+    #chat-widget { position: fixed; bottom: 24px; right: 24px; z-index: 200; font-family: 'Inter', sans-serif; }
+    #chat-bubble { width: 56px; height: 56px; border-radius: 50%; background: #303030; color: white; display: flex; items-center: center; justify-content: center; cursor: pointer; shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s; }
+    #chat-bubble:hover { transform: scale(1.1); }
+    #chat-window { width: 320px; height: 400px; background: white; border-radius: 16px; shadow: 0 12px 40px rgba(0,0,0,0.15); border: 1px solid #e1e3e5; display: none; flex-direction: column; overflow: hidden; }
+    #chat-window.active { display: flex; }
+    .chat-header { background: #303030; color: white; padding: 16px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    #chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .message { padding: 8px 12px; border-radius: 12px; font-size: 13px; max-width: 85%; }
+    .message-received { background: #f1f2f3; align-self: flex-start; color: #202223; }
+    .message-sent { background: #303030; align-self: flex-end; color: white; }
+  </style>
+</head>
+<body class="min-h-screen flex">
+
+  <!-- Chat Widget -->
+  <div id="chat-widget">
+    <div id="chat-window">
+      <div class="chat-header">
+        <span>Support Chat</span>
+        <button onclick="toggleChat()"><i class="fas fa-times"></i></button>
+      </div>
+      <div id="chat-messages">
+        <div class="message message-received">Hi! How can we help you today?</div>
+      </div>
+      <div class="p-3 border-t bg-gray-50 flex gap-2">
+        <input id="chat-input" type="text" placeholder="Type a message..." class="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" onkeydown="if(event.key==='Enter'){handleChatSubmit();event.preventDefault();}">
+        <button class="text-[#303030]" onclick="handleChatSubmit()"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+    <div id="chat-bubble" class="mt-3 flex items-center justify-center shadow-lg" onclick="toggleChat()">
+      <i class="fas fa-comment-alt text-xl"></i>
+    </div>
+  </div>
+
+  <aside class="hidden lg:flex w-64 shrink-0 bg-[#f1f2f3] border-r border-[#e1e3e5] flex-col">
+    <div class="h-14 border-b border-[#e1e3e5] flex items-center px-5 font-semibold text-[#111213]">
+      <i class="fas fa-filter mr-2 text-[#303030]"></i>
+      <span class="truncate">Filter & Product Grid Design</span>
+    </div>
+    <nav class="p-4 space-y-1 text-sm text-[#303030]">
+      <div class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/60 cursor-pointer">
+        <i class="fas fa-home w-4"></i> Home
+      </div>
+      <div id="navAdvanced" class="nav-item active flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer">
+        <i class="fas fa-star w-4 text-[#303030]"></i> Advanced Features
+      </div>
+      <div id="navMaster" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/60 cursor-pointer">
+        <i class="fas fa-database w-4 text-[#303030]"></i> Master
+      </div>
+    </nav>
+  </aside>
+
+  <main class="flex-1 flex flex-col h-screen overflow-hidden">
+    <header class="h-14 bg-white border-b border-[#e1e3e5] flex items-center px-6 justify-end shrink-0 gap-4">
+      <div id="scaleWrap" class="flex items-center gap-2">
+        <label class="text-[10px] uppercase font-bold text-gray-400">Card Scale:</label>
+        <div class="relative">
+          <input type="number" id="scaleInput" value="100" min="80" max="100" class="w-16 h-8 pl-2 pr-5 border rounded text-xs font-bold" placeholder="100">
+          <span class="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">%</span>
+        </div>
+      </div>
+      <div id="editWrap" class="flex gap-2 border-l border-gray-200 pl-4">
+        <button id="editBtn" class="px-4 h-9 rounded-md border border-[#dfe3e8] bg-white text-sm font-medium hover:bg-gray-50 transition-colors">Edit</button>
+        <button id="saveBtn" class="hidden px-4 h-9 rounded-md bg-[#303030] text-white text-sm font-medium hover:bg-[#1a1a1a] transition-colors">Save Changes</button>
+      </div>
+    </header>
+
+    <!-- Advanced Features view -->
+    <div class="flex-1 overflow-y-auto p-6 md:p-8 space-y-10" id="scrollContainer">
+
+      <div class="max-w-6xl mx-auto space-y-3">
+        <h1 class="font-bold text-2xl text-[#111213]" id="pageTitle" contenteditable="false">Advanced Features</h1>
+      </div>
+
+      <div class="max-w-6xl mx-auto">
+        <div id="featureGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+        <div class="mt-12 flex justify-center">
+          <div class="bg-white border border-[#dfe3e8] rounded-xl px-10 py-4 shadow-sm inline-block max-w-4xl whitespace-nowrap">
+            <p id="featureRequestText" class="text-base font-bold text-[#111213]" contenteditable="false">
+              Cannot find what you need here? <a href="javascript:void(0)" onclick="openChatWith('Hi, I have a custom feature request')" class="text-blue-600 hover:underline cursor-pointer ml-1">Contact us now</a> to request a custom feature.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-center">
+          <button id="addCardBtn" class="hidden px-6 py-3 border-2 border-dashed border-[#dfe3e8] rounded-xl text-[#6d7175] font-medium hover:border-[#303030] hover:text-[#303030] transition-all">
+            <i class="fas fa-plus mr-2"></i> Add New Feature Card
+          </button>
+        </div>
+      </div>
+
+      <div class="max-w-6xl mx-auto py-12 border-t border-[#e1e3e5]">
+        <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-[#111213]" contenteditable="false" id="recAppsTitle">Recommend Apps</h2>
+            <p class="text-sm text-[#6d7175] mt-1" contenteditable="false" id="recAppsSub">Enhance your store's functionality with our curated selection of top-tier companion apps.</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <button id="addAppBtn" class="hidden px-4 py-2 border border-dashed border-[#303030] rounded-lg text-[#303030] text-xs font-bold hover:bg-[#303030]/5 transition-all">
+              <i class="fas fa-plus mr-1"></i> Add App
+            </button>
+            <div class="flex gap-2">
+              <button onclick="moveCarousel(-1)" class="w-10 h-10 rounded-full border border-[#dfe3e8] bg-white flex items-center justify-center hover:bg-gray-50"><i class="fas fa-chevron-left"></i></button>
+              <button onclick="moveCarousel(1)" class="w-10 h-10 rounded-full border border-[#dfe3e8] bg-white flex items-center justify-center hover:bg-gray-50"><i class="fas fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="overflow-hidden">
+          <div id="appCarousel" class="carousel-track gap-6"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master view -->
+    <div class="flex-1 overflow-y-auto p-6 md:p-8 hidden" id="masterView">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+          <div>
+            <h1 class="font-bold text-2xl text-[#111213]">Master</h1>
+            <p class="text-sm text-[#6d7175] mt-1">Manage all feature cards that appear in Advanced Features.</p>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-[#dfe3e8] shadow-sm overflow-hidden">
+          <div class="flex items-center justify-between px-5 py-4 border-b border-[#e1e3e5]">
+            <h2 class="font-semibold text-[#111213]">Feature</h2>
+            <div class="flex items-center gap-2">
+              <button onclick="resetAll()" class="px-4 h-9 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors">
+                <i class="fas fa-rotate-left mr-1"></i> Reset All
+              </button>
+              <button onclick="openFeatureEditor(null)" class="px-4 h-9 rounded-md bg-[#303030] text-white text-sm font-medium hover:bg-[#1a1a1a] transition-colors">
+                <i class="fas fa-plus mr-1"></i> Add new feature
+              </button>
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="master-table w-full">
+              <thead>
+                <tr>
+                  <th style="width:80px">Order</th>
+                  <th style="width:90px">Status</th>
+                  <th style="width:100px">Thumbnail</th>
+                  <th style="width:140px">Code</th>
+                  <th>Name</th>
+                  <th style="width:140px">Action</th>
+                </tr>
+              </thead>
+              <tbody id="masterTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Subscribe Modal -->
+  <div id="buyModal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 buy-modal-backdrop">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <button onclick="closeBuyModal()" class="absolute top-3 right-3 close-modal-btn"><i class="fas fa-times"></i></button>
+      <h3 id="buyTitle" class="text-xl font-bold mb-2 text-[#111213]">Subscribe</h3>
+      <p class="text-sm text-[#6d7175] mb-4">Unlock this premium feature for your store.</p>
+      <div class="bg-[#f6f6f7] rounded-lg p-4 mb-4 flex justify-between items-center">
+        <span id="buyName" class="text-sm font-semibold"></span>
+        <span id="buyPrice" class="text-lg font-bold text-[#303030]"></span>
+      </div>
+      <button id="buyConfirmBtn" onclick="confirmBuy()" class="w-full h-11 bg-[#303030] text-white rounded-lg font-bold text-sm hover:bg-[#1a1a1a] transition-colors">Proceed to Payment</button>
+    </div>
+  </div>
+
+  <!-- Unsubscribe Modal -->
+  <div id="unsubModal" class="fixed inset-0 z-[110] hidden items-center justify-center p-4 buy-modal-backdrop">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl relative">
+      <button onclick="closeUnsubModal()" class="absolute top-3 right-3 close-modal-btn"><i class="fas fa-times"></i></button>
+      <h3 class="text-xl font-bold mb-2 text-[#111213]">Unsubscribe</h3>
+      <p id="unsubBody" class="text-sm text-[#6d7175] mb-4">Are you sure you want to unsubscribe from this feature?</p>
+      <div class="flex gap-2">
+        <button onclick="closeUnsubModal()" class="flex-1 h-11 rounded-lg border border-[#dfe3e8] bg-white font-semibold text-sm hover:bg-gray-50">Cancel</button>
+        <button onclick="confirmUnsub()" class="flex-1 h-11 rounded-lg bg-red-500 text-white font-bold text-sm hover:bg-red-600">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Editor Modal (Master) -->
+  <div id="featureEditorModal" class="fixed inset-0 z-[120] hidden items-center justify-center p-4 buy-modal-backdrop">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      <button onclick="closeFeatureEditor()" class="absolute top-3 right-3 close-modal-btn z-10"><i class="fas fa-times"></i></button>
+      <div class="p-6 border-b border-[#e1e3e5]">
+        <h3 id="editorTitle" class="text-xl font-bold text-[#111213]">Add Feature</h3>
+      </div>
+      <div class="p-6 space-y-5">
+        <div class="flex items-center justify-between bg-[#f6f6f7] px-4 py-3 rounded-lg">
+          <div>
+            <div class="text-sm font-semibold">Display on Advanced Features</div>
+            <div class="text-xs text-[#6d7175]">Show or hide this feature card publicly.</div>
+          </div>
+          <label class="switch"><input type="checkbox" id="fVisible" checked><span class="slider"></span></label>
+        </div>
+
+        <div class="border border-[#dfe3e8] rounded-xl p-5">
+          <h4 class="font-bold text-sm mb-4 text-[#111213]">Feature</h4>
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Type</label>
+              <div class="flex gap-6 mt-2">
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="fType" value="free" checked onchange="toggleCostField()"> Free
+                </label>
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="radio" name="fType" value="paid" onchange="toggleCostField()"> Paid
+                </label>
+              </div>
+            </div>
+            <div id="fCostWrap" class="hidden">
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Cost (per month)</label>
+              <div class="relative mt-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-sm">$</span>
+                <input type="number" id="fCost" min="0" step="1" placeholder="10" class="w-full border rounded-lg pl-7 pr-16 py-2 text-sm outline-none focus:border-[#303030]">
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[#6d7175] text-xs">/mo</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Code</label>
+              <input type="text" id="fCode" placeholder="FEAT_XYZ" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Name</label>
+              <input type="text" id="fName" placeholder="Feature name" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Description (tooltip)</label>
+              <textarea id="fDesc" rows="3" placeholder="Shown in the tooltip on the card" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="border border-[#dfe3e8] rounded-xl p-5">
+          <h4 class="font-bold text-sm mb-4 text-[#111213]">Thumbnail</h4>
+          <div class="space-y-4">
+            <div>
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Thumbnail (static/GIF image on card)</label>
+              <input type="text" id="fThumb" placeholder="https://..." class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-[#6d7175] uppercase tracking-wide">Media (shown in the modal preview)</label>
+              <input type="text" id="fMedia" placeholder="https://... (image / gif / video)" class="w-full border rounded-lg px-3 py-2 text-sm mt-1 outline-none focus:border-[#303030]">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-5 border-t border-[#e1e3e5] flex justify-end gap-2">
+        <button onclick="closeFeatureEditor()" class="px-4 h-10 rounded-md border border-[#dfe3e8] bg-white text-sm font-medium hover:bg-gray-50">Cancel</button>
+        <button onclick="saveFeatureEditor()" class="px-4 h-10 rounded-md bg-[#303030] text-white text-sm font-medium hover:bg-[#1a1a1a]">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="previewModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 modal-backdrop">
+    <div class="modal-container rounded-2xl max-w-3xl w-full overflow-hidden shadow-2xl relative">
+      <div id="modalHeader" class="modal-header text-lg font-bold"></div>
+      <button onclick="closeModal()" class="absolute top-4 right-4 close-modal-btn z-10">
+        <i class="fas fa-times"></i>
+      </button>
+      <div id="modalContent" class="aspect-video bg-black flex items-center justify-center">
+        <img id="modalImg" src="" alt="Preview" class="w-full h-full object-contain">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'findter_features_v6';
+
+    const defaultFeatures = [
+      { id: 1, title: 'Filter by Metafields', desc: 'Create custom metafields as filter options. Start with 10 metafields included. Need additional metafields? Contact us for upgrade', status: 'Locked', gif: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDN4OWRobnhvbGRuejh3M2NqaGYzd2JtNWN4NzZ1d3Eybmx4ZDg3dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/jTAdnH5MtdVAJHLv4N/giphy.gif' },
+      { id: 2, title: 'Boost In-Stock Products', desc: 'When shoppers choose a variant filter, products with matching in-stock variants appear first in the storefront results.', status: 'Locked', gif: 'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExcmNnNGhiYzFna2d3bmhhdzVhc3M4cHRuYWRhYmd6OXhjeDM2NDRmdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/XkyxgzbM5rxYY/giphy.gif' },
+      { id: 3, title: 'Hide Out-of-Stock Products', desc: 'Out-of-stock items matching that selected value are hidden from the filter results', status: 'Locked', gif: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDN4OWRobnhvbGRuejh3M2NqaGYzd2JtNWN4NzZ1d3Eybmx4ZDg3dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/PATFfc1VF9mtlbzZfL/giphy.gif' },
+      { id: 4, title: 'Local Currency Adaption', desc: 'Show product and filter prices in the shopper\'s local currency instead of only the default currency set in your store.', status: 'Locked', gif: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDN4OWRobnhvbGRuejh3M2NqaGYzd2JtNWN4NzZ1d3Eybmx4ZDg3dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/iDzgyb5736rjvdGdFb/giphy.gif' },
+      { id: 5, title: 'Image Swatches Filter', desc: 'Display product images instead of plain color or text swatches. Let shoppers preview and select different patterns, designs, or styles visually for a better shopping experience.', status: 'Locked', gif: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDN4OWRobnhvbGRuejh3M2NqaGYzd2JtNWN4NzZ1d3Eybmx4ZDg3dCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o7TKMGpxvF7657904/giphy.gif' },
+      { id: 6, title: 'Multi-Filters by One Source', desc: 'Reuse a single source, such as Tags, Type, Category or Vendor, etc... multiple times in one filter set (based on your needs)', status: 'Locked', gif: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHJleW1pOHZ1MTR1ZHJkNjVnNmpnbnZhcWlneWxsaHVpNXpwNnc4ZCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/26uf7O0I7YmYgN528/giphy.gif' },
+      { id: 'sample-ymm', title: 'Year Make Model', desc: 'Let shoppers filter parts and products by their vehicle year, make, and model - a must-have for automotive stores.', status: 'Locked', gif: 'https://media.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif', type: 'paid', cost: 10 }
+    ];
+
+    const recommendedApps = [
+      { name: 'Findter Search', tag: 'Boost Sales', desc: 'Advanced AI search that understands customer intent, surfacing the right products even when shoppers use vague or misspelled queries. Boosts conversion by keeping search results relevant.', logo: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'Reviewify', tag: 'Social Proof', desc: 'Import and display stunning reviews in seconds, complete with photos and star ratings. Build shopper trust and increase conversion rates with authentic social proof on every product page.', logo: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'LoyaltyPro', tag: 'Retention', desc: 'Build lasting relationships with rewards, points, and referral programs. Turn one-time buyers into repeat customers with a fully customizable loyalty experience that matches your brand.', logo: 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'CartOptimizer', tag: 'Conversion', desc: 'Reduce abandoned carts with smart upsell nudges, exit-intent offers, and automated reminder emails. Recover lost revenue and increase average order value without extra manual effort.', logo: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'ShipEasy', tag: 'Logistics', desc: 'Streamline your shipping process with real-time carrier rates, bulk label printing, and automated tracking updates. Lower shipping costs while keeping customers informed every step of the way.', logo: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaad5b?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'MailBoost', tag: 'Marketing', desc: 'Automated email marketing built for Shopify stores, with drag-and-drop templates, segmentation, and abandoned cart flows. Grow revenue from your existing customer list on autopilot.', logo: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'Bundler', tag: 'AOV', desc: 'Create beautiful product bundles and volume discounts to increase order value. Let shoppers mix and match items with flexible pricing rules that update automatically at checkout.', logo: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=400', link: '#' },
+      { name: 'InstaFeed', tag: 'Social', desc: 'Display your Instagram feed directly on your store and turn posts into shoppable galleries. Keep your storefront fresh and engaging while driving traffic from social to checkout.', logo: 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&q=80&w=400', link: '#' }
+    ];
+
+    // Load + migrate features
+    function migrate(list) {
+      return list.map((f, i) => ({
+        id: f.id ?? Date.now() + i,
+        title: f.title || 'Untitled',
+        desc: f.desc || '',
+        status: f.status || 'Locked',
+        gif: f.gif || '',
+        type: f.type === 'paid' ? 'paid' : 'free',
+        cost: f.cost != null ? Number(f.cost) : (f.type === 'paid' ? 10 : 0),
+        code: f.code || ('FEAT_' + String(f.id ?? i)),
+        visible: f.visible !== false,
+        thumbnail: f.thumbnail || f.gif || '',
+        media: f.media || f.gif || '',
+        order: f.order != null ? Number(f.order) : i
+      })).sort((a, b) => a.order - b.order);
+    }
+
+    let features = migrate(JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultFeatures);
+    let appsData = JSON.parse(localStorage.getItem(STORAGE_KEY + '_apps')) || recommendedApps;
+    let purchased = JSON.parse(localStorage.getItem(STORAGE_KEY + '_purchased') || '{}');
+    let purchaseDates = JSON.parse(localStorage.getItem(STORAGE_KEY + '_purchase_dates') || '{}');
+    let activated = JSON.parse(localStorage.getItem(STORAGE_KEY + '_activated') || '{}');
+    let isEditing = false;
+    let carouselIndex = 0;
+    let currentScale = 100;
+    // Paid mode is the only mode.
+    let currentTab = 'advanced'; // advanced | master
+    let editorTargetId = null;
+    let buyTargetId = null;
+    let pendingActivation = new Set();
+    let toggleCounts = {};
+
+    const grid = document.getElementById('featureGrid');
+    const scaleInput = document.getElementById('scaleInput');
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const addCardBtn = document.getElementById('addCardBtn');
+    const addAppBtn = document.getElementById('addAppBtn');
+    const previewModal = document.getElementById('previewModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalHeader = document.getElementById('modalHeader');
+    const appCarousel = document.getElementById('appCarousel');
+    const recAppsTitle = document.getElementById('recAppsTitle');
+    const featureRequestText = document.getElementById('featureRequestText');
+    const unsubModal = document.getElementById('unsubModal');
+    let unsubTargetId = null;
+    let pendingConfirmId = null;
+    const buyModal = document.getElementById('buyModal');
+    const masterView = document.getElementById('masterView');
+    const scrollContainer = document.getElementById('scrollContainer');
+    const navAdvanced = document.getElementById('navAdvanced');
+    const navMaster = document.getElementById('navMaster');
+    const editorModal = document.getElementById('featureEditorModal');
+
+    // Persist helpers
+    function persistFeatures() { localStorage.setItem(STORAGE_KEY, JSON.stringify(features)); }
+    function persistPurchased() { localStorage.setItem(STORAGE_KEY + '_purchased', JSON.stringify(purchased)); }
+    function persistActivated() { localStorage.setItem(STORAGE_KEY + '_activated', JSON.stringify(activated)); }
+    function findById(id) { return features.find(f => String(f.id) === String(id)); }
+    function idxById(id) { return features.findIndex(f => String(f.id) === String(id)); }
+
+    // Tab switching
+    function switchTab(tab) {
+      currentTab = tab;
+      const isMaster = tab === 'master';
+      masterView.classList.toggle('hidden', !isMaster);
+      scrollContainer.classList.toggle('hidden', isMaster);
+      navMaster.classList.toggle('active', isMaster);
+      navAdvanced.classList.toggle('active', !isMaster);
+      // Hide header controls in master
+      
+      document.getElementById('scaleWrap').classList.toggle('hidden', isMaster);
+      document.getElementById('editWrap').classList.toggle('hidden', isMaster);
+      if (isMaster) renderMaster();
+    }
+    navAdvanced.onclick = () => switchTab('advanced');
+    navMaster.onclick = () => switchTab('master');
+
+
+
+    // Subscribe flow
+    function openBuyModal(id) {
+      buyTargetId = id;
+      const f = findById(id);
+      if (!f) return;
+      document.getElementById('buyTitle').textContent = 'Subscribe ' + f.title;
+      document.getElementById('buyName').textContent = f.title;
+      document.getElementById('buyPrice').innerHTML = '$' + (f.cost || 0) + '<span class="text-xs font-medium">/mo</span>';
+      document.getElementById('buyConfirmBtn').textContent = 'Proceed to Payment';
+      buyModal.classList.remove('hidden');
+      buyModal.classList.add('flex');
+    }
+    function closeBuyModal() {
+      buyModal.classList.add('hidden');
+      buyModal.classList.remove('flex');
+    }
+    function confirmBuy() {
+      if (buyTargetId != null) {
+        purchased[buyTargetId] = true;
+        purchaseDates[buyTargetId] = Date.now();
+        persistPurchased();
+        localStorage.setItem(STORAGE_KEY + '_purchase_dates', JSON.stringify(purchaseDates));
+      }
+      closeBuyModal();
+      renderGrid();
+    }
+
+
+    // Unsubscribe flow
+    function openUnsubModal(id) {
+      unsubTargetId = id;
+      const f = findById(id);
+      const expDate = purchaseDates[id]
+        ? new Date(purchaseDates[id] + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+        : null;
+      document.getElementById('unsubBody').textContent =
+        `Are you sure you want to unsubscribe from ${f ? f.title : 'this feature'}?` +
+        (expDate ? ` Your access is currently active until ${expDate}.` : '');
+      unsubModal.classList.remove('hidden');
+      unsubModal.classList.add('flex');
+    }
+    function closeUnsubModal() {
+      unsubModal.classList.add('hidden');
+      unsubModal.classList.remove('flex');
+      unsubTargetId = null;
+    }
+    function confirmUnsub() {
+      if (unsubTargetId != null) {
+        const id = String(unsubTargetId);
+        delete purchased[id];
+        delete purchaseDates[id];
+        delete activated[id];
+        const f = findById(id);
+        if (f) { f.status = 'Locked'; persistFeatures(); }
+        persistPurchased();
+        localStorage.setItem(STORAGE_KEY + '_purchase_dates', JSON.stringify(purchaseDates));
+        persistActivated();
+      }
+      closeUnsubModal();
+      renderGrid();
+    }
+
+    function togglePaidStatus(id) {
+      const f = findById(id);
+      if (!f) return;
+      f.status = f.status.toLowerCase() === 'enabled' ? 'Locked' : 'Enabled';
+      persistFeatures();
+      toggleCounts[id] = (toggleCounts[id] || 0) + 1;
+      if (toggleCounts[id] >= 3) {
+        toggleCounts[id] = 0;
+        setTimeout(() => {
+          document.getElementById('chat-window').classList.add('active');
+          sendBotMessage(`Hey! Looks like you've been toggling ${f.title} a few times — need a hand? I'm happy to help you get the most out of it 😊`);
+        }, 400);
+      }
+      renderGrid();
+    }
+    function toggleCardStatus(index) {
+      const f = features[index];
+      f.status = f.status.toLowerCase() === 'enabled' ? 'Locked' : 'Enabled';
+      persistFeatures();
+      renderGrid();
+    }
+
+    function sendBotMessage(text) {
+      const messages = document.getElementById('chat-messages');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message message-received';
+      msgDiv.textContent = text;
+      messages.appendChild(msgDiv);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Enable flow — triggered from "Click to Enable" on a free-type card.
+    // Requires user to type Yes/No in chat before we proceed.
+    function activateFeature(id) {
+      if (pendingActivation.has(String(id))) return;
+      if (pendingConfirmId) return; // one confirmation at a time
+      const f = findById(id);
+      if (!f) return;
+      pendingConfirmId = String(id);
+      document.getElementById('chat-window').classList.add('active');
+      sendBotMessage(`Please confirm with us you want to enable this ${f.title} by type Yes to proceed or No to cancel.`);
+    }
+
+    function proceedEnable(id) {
+      const f = findById(id);
+      if (!f) return;
+      pendingActivation.add(String(id));
+      renderGrid();
+      sendBotMessage(`Great! Please give me a moment while I activate ${f.title} on your account... ⏳`);
+      setTimeout(() => {
+        sendBotMessage(`Great news! ✅ ${f.title} has been successfully enabled!`);
+        setTimeout(() => {
+          sendBotMessage(`You can now use this feature immediately. Feel free to toggle it on/off anytime using the switch in the card. Enjoy! 🎉`);
+          setTimeout(() => {
+            pendingActivation.delete(String(id));
+            f.status = 'Enabled';
+            activated[String(id)] = true;
+            persistFeatures();
+            persistActivated();
+            renderGrid();
+            setTimeout(() => {
+              sendBotMessage(`May I know if the app meet your expectation so far?`);
+            }, 800);
+          }, 2500);
+        }, 1000);
+      }, 2500);
+    }
+
+    function cancelEnable(id) {
+      const f = findById(id);
+      const name = f ? f.title : 'this feature';
+      sendBotMessage(`No problem! We won't enable ${name} for now. You can always come back and enable it whenever you're ready.`);
+      setTimeout(() => {
+        sendBotMessage(`May I know if the app meet your expectation so far?`);
+      }, 800);
+    }
+
+    function sendUserChatMessage(text) {
+      const messages = document.getElementById('chat-messages');
+      const div = document.createElement('div');
+      div.className = 'message message-sent';
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function handleChatSubmit() {
+      const input = document.getElementById('chat-input');
+      const text = (input.value || '').trim();
+      if (!text) return;
+      sendUserChatMessage(text);
+      input.value = '';
+      if (pendingConfirmId) {
+        const answer = text.toLowerCase();
+        const isYes = answer === 'yes' || answer === 'y';
+        const isNo  = answer === 'no'  || answer === 'n';
+        if (isYes || isNo) {
+          const id = pendingConfirmId;
+          pendingConfirmId = null;
+          setTimeout(() => {
+            if (isYes) proceedEnable(id);
+            else cancelEnable(id);
+          }, 400);
+        }
+      }
+    }
+
+    function handleFeatureToggle(id) {
+      const f = findById(id);
+      if (!f) return;
+      f.status = f.status.toLowerCase() === 'enabled' ? 'Locked' : 'Enabled';
+      persistFeatures();
+      toggleCounts[id] = (toggleCounts[id] || 0) + 1;
+      if (toggleCounts[id] >= 3) {
+        toggleCounts[id] = 0;
+        setTimeout(() => {
+          document.getElementById('chat-window').classList.add('active');
+          sendBotMessage(`Hey! Looks like you've been toggling ${f.title} a few times - need a hand? I'm happy to help you get the most out of it 😊`);
+        }, 400);
+      }
+      renderGrid();
+    }
+
+    scaleInput.oninput = (e) => {
+      currentScale = Math.max(80, Math.min(100, Number(e.target.value) || 100));
+      scaleInput.value = currentScale;
+      renderGrid();
+    };
+
+    function toggleChat() { document.getElementById('chat-window').classList.toggle('active'); }
+    function openChatWith(message) {
+      if (isEditing) return;
+      const win = document.getElementById('chat-window');
+      const messages = document.getElementById('chat-messages');
+      win.classList.add('active');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message message-sent';
+      msgDiv.textContent = message;
+      messages.appendChild(msgDiv);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function buildCardHtml(f, index, opts) {
+      const isPaidType = f.type === 'paid';
+      const isEnabled = f.status.toLowerCase() === 'enabled' || f.status.toLowerCase() === 'live';
+      const isBought = !!purchased[f.id];
+      const isActivated = !!activated[f.id];
+      const isPending = pendingActivation.has(String(f.id));
+
+      const thumb = f.thumbnail || f.gif;
+      const media = f.media || f.gif;
+      const staticImg = thumb.replace('.gif', '_s.gif');
+
+      // ── Title row ──
+      let titleRow;
+      const tooltipHtml = `
+              <div class="relative group/tooltip inline-block shrink-0">
+                <i class="far fa-question-circle text-[#6d7175] text-xs cursor-help p-1 transition-colors hover:text-[#303030]"
+                   onclick="${isEditing ? 'toggleTooltip(this)' : ''}"></i>
+                <div class="tooltip-box bg-[#111213] text-white text-[11px] p-4 rounded-xl shadow-2xl leading-relaxed border border-white/10">
+                  <div contenteditable="${isEditing}" onblur="updateField(${index}, 'desc', this.innerText)">${f.desc}</div>
+                  <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-[#111213] rotate-45"></div>
+                </div>
+              </div>`;
+
+      // Show toggle switch once the feature has been enabled by the user.
+      if (isActivated) {
+        titleRow = `
+          <div class="flex items-center gap-2 mb-2 w-full">
+            <div class="flex items-center gap-1 flex-1 min-w-0">
+              <h3 class="font-bold text-sm text-[#111213] truncate min-w-0" contenteditable="${isEditing}" onblur="updateField(${index}, 'title', this.innerText)">${f.title}</h3>
+              ${tooltipHtml}
+            </div>
+            <label class="switch shrink-0" onclick="event.stopPropagation()">
+              <input type="checkbox" ${isEnabled ? 'checked' : ''} onchange="handleFeatureToggle('${f.id}')">
+              <span class="slider"></span>
+            </label>
+          </div>`;
+      } else {
+        const priceHtml = isPaidType && f.cost && !isBought
+          ? `<div class="flex flex-col items-end shrink-0">
+               <span class="text-[#303030] font-bold text-sm whitespace-nowrap">$${f.cost}/mo</span>
+             </div>`
+          : '';
+        titleRow = `
+          <div class="flex items-center gap-2 mb-2 w-full">
+            <div class="flex items-center gap-1 flex-1 min-w-0">
+              <h3 class="font-bold text-sm text-[#111213] truncate min-w-0" contenteditable="${isEditing}" onblur="updateField(${index}, 'title', this.innerText)">${f.title}</h3>
+              ${tooltipHtml}
+            </div>
+            ${priceHtml}
+          </div>`;
+      }
+
+      // ── Buttons row / meta ──
+      let buttonsRow = '';
+      let metaRow = '';
+      const pendingBtn = `
+        <button disabled class="flex-1 h-8 rounded-lg bg-[#303030]/60 text-white text-[10px] font-bold px-2 cursor-not-allowed flex items-center justify-center gap-1.5">
+          <svg class="animate-spin h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+          Enabling...
+        </button>`;
+      const enableBtn = `<button onclick="activateFeature('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#303030] text-white text-[10px] font-bold px-2 hover:bg-[#1a1a1a] transition-all">Click to Enable</button>`;
+
+      if (isPaidType) {
+        if (!isBought) {
+          buttonsRow = `<button onclick="openBuyModal('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#303030] text-white text-[10px] font-bold px-2 hover:bg-[#1a1a1a] transition-all">Subscribe</button>`;
+        } else if (!isActivated) {
+          // Subscribed but not yet enabled — user still needs to run the chat enable flow.
+          buttonsRow = isPending ? pendingBtn : enableBtn;
+        } else {
+          // Subscribed AND enabled — show Unsubscribe + expiry below.
+          const expiryDate = purchaseDates[f.id]
+            ? new Date(purchaseDates[f.id] + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            : null;
+          buttonsRow = `<button onclick="openUnsubModal('${f.id}')" class="flex-1 h-8 rounded-lg bg-[#6d7175] text-white text-[10px] font-bold px-2 hover:bg-[#4a4d50] transition-all">Unsubscribe</button>`;
+          if (expiryDate) {
+            metaRow = `<div class="text-center text-[10px] text-[#6d7175] mt-1">Expires: ${expiryDate}</div>`;
+          }
+        }
+      } else {
+        // Free type
+        if (isPending) {
+          buttonsRow = pendingBtn;
+        } else if (!isActivated) {
+          buttonsRow = enableBtn;
+        }
+      }
+
+
+      if (isEditing) {
+        buttonsRow += `<button onclick="removeCard(${index}); event.stopPropagation();" class="w-8 h-8 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 transition-colors"><i class="fas fa-trash-alt text-xs"></i></button>`;
+      }
+
+      return `
+        <div class="relative h-3/4 bg-[#f8f9fa] ${isEditing ? 'cursor-default' : 'cursor-zoom-in'} overflow-hidden rounded-t-2xl"
+             onmouseenter="showPreview(this, '${media}')"
+             onmouseleave="hidePreview(this, '${staticImg}')"
+             onclick="${isEditing ? '' : `openModal('${media}', '${f.title}')`}">
+          ${!isEditing ? `
+          <div class="expand-badge absolute top-1/2 left-1/2 z-30 bg-white/95 backdrop-blur-sm border border-[#dfe3e8] px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 text-xs font-bold text-[#111213] whitespace-nowrap">
+            <i class="fas fa-expand-alt text-sm"></i><span>Click to Expand</span>
+          </div>` : ''}
+          <img src="${staticImg}" class="absolute inset-0 w-full h-full object-cover z-0 filter brightness-[0.9]" alt="${f.title}">
+          <div class="absolute inset-0 bg-black/5 z-10 transition-opacity duration-200 preview-placeholder flex flex-col items-center justify-center text-white text-xs font-medium space-y-2">
+            <i class="fas fa-play-circle text-3xl opacity-90 drop-shadow-md"></i>
+            <span class="drop-shadow-md">Hover to preview</span>
+          </div>
+          <img data-src="${media}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="absolute inset-0 w-full h-full object-cover transition-opacity duration-300 z-20 opacity-0" alt="${f.title}">
+        </div>
+        <div class="h-1/4 p-4 relative flex flex-col justify-center bg-white rounded-b-2xl border-t border-[#f1f2f3]">
+          ${titleRow}
+          ${buttonsRow ? `<div class="flex items-center gap-2">${buttonsRow}</div>` : ''}
+          ${metaRow}
+        </div>
+      `;
+    }
+
+
+    function renderGrid() {
+      grid.innerHTML = '';
+      const scaleFactor = currentScale / 100;
+      grid.style.gap = `${32 * scaleFactor}px`;
+
+      // Visible features only, ordered
+      const visible = features
+        .map((f, i) => ({ f, i }))
+        .filter(x => x.f.visible !== false)
+        .sort((a, b) => (a.f.order || 0) - (b.f.order || 0));
+
+      visible.forEach(({ f, i }) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'feature-card-wrapper';
+        wrapper.style.transform = `scale(${scaleFactor})`;
+        wrapper.style.transformOrigin = 'center center';
+        const card = document.createElement('div');
+        const premiumRing = f.type === 'paid' ? 'border-[#303030]/40 ring-2 ring-[#303030]/20' : 'border-[#dfe3e8]';
+        card.className = `group relative overflow-visible rounded-2xl border ${premiumRing} bg-white shadow-sm card-zoom card-glow card-square flex flex-col`;
+        card.innerHTML = buildCardHtml(f, i, {});
+        wrapper.appendChild(card);
+        grid.appendChild(wrapper);
+      });
+    }
+
+    // ============ MASTER TABLE ============
+    function renderMaster() {
+      const body = document.getElementById('masterTableBody');
+      body.innerHTML = '';
+      const sorted = [...features].sort((a, b) => (a.order || 0) - (b.order || 0));
+      let dragSrcId = null;
+
+      sorted.forEach((f) => {
+        const tr = document.createElement('tr');
+        tr.draggable = true;
+        tr.dataset.id = String(f.id);
+        tr.innerHTML = `
+          <td>
+            <div class="flex items-center justify-center text-[#b0b5ba] hover:text-[#303030] transition-colors cursor-grab active:cursor-grabbing px-2">
+              <i class="fas fa-grip-vertical text-base"></i>
+            </div>
+          </td>
+          <td>
+            <label class="switch">
+              <input type="checkbox" ${f.visible !== false ? 'checked' : ''} onchange="toggleVisible('${f.id}', this.checked)">
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td>
+            ${f.thumbnail ? `<img src="${f.thumbnail}" class="w-14 h-14 object-cover rounded-lg border border-[#e1e3e5]" alt="thumb">` : '<div class="w-14 h-14 rounded-lg bg-[#f1f2f3] border border-[#e1e3e5]"></div>'}
+          </td>
+          <td class="text-[#6d7175] font-mono text-xs">${f.code || ''}</td>
+          <td>
+            <div class="font-semibold text-[#111213]">${f.title}</div>
+            <div class="text-xs text-[#6d7175] mt-0.5">
+              <span class="inline-block px-2 py-0.5 rounded ${f.type === 'paid' ? 'bg-[#e3f1df] text-[#0c5132]' : 'bg-[#f1f2f3] text-[#6d7175]'} font-semibold uppercase text-[10px] tracking-wide">${f.type}</span>
+              ${f.type === 'paid' ? `<span class="ml-2">$${f.cost || 0}/mo</span>` : ''}
+            </div>
+          </td>
+          <td>
+            <div class="flex items-center gap-2">
+              <button onclick="openFeatureEditor('${f.id}')" class="w-9 h-9 rounded-lg border border-[#dfe3e8] text-[#303030] hover:bg-[#303030]/5 flex items-center justify-center" title="Edit">
+                <i class="fas fa-pen text-xs"></i>
+              </button>
+              <button onclick="removeFeatureById('${f.id}')" class="w-9 h-9 rounded-lg border border-red-100 text-red-500 hover:bg-red-50 flex items-center justify-center" title="Remove">
+                <i class="fas fa-trash-alt text-xs"></i>
+              </button>
+            </div>
+          </td>
+        `;
+
+        tr.addEventListener('dragstart', (e) => {
+          dragSrcId = String(f.id);
+          e.dataTransfer.effectAllowed = 'move';
+          setTimeout(() => tr.classList.add('dragging'), 0);
+        });
+
+        tr.addEventListener('dragend', () => {
+          tr.classList.remove('dragging');
+          body.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top'));
+        });
+
+        tr.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          body.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over-top'));
+          if (dragSrcId !== String(f.id)) tr.classList.add('drag-over-top');
+        });
+
+        tr.addEventListener('drop', (e) => {
+          e.preventDefault();
+          tr.classList.remove('drag-over-top');
+          if (!dragSrcId || dragSrcId === String(f.id)) return;
+          reorderByDrag(dragSrcId, String(f.id));
+        });
+
+        body.appendChild(tr);
+      });
+    }
+
+    function reorderByDrag(srcId, tgtId) {
+      const sorted = [...features].sort((a, b) => (a.order || 0) - (b.order || 0));
+      const srcIdx = sorted.findIndex(f => String(f.id) === srcId);
+      const tgtIdx = sorted.findIndex(f => String(f.id) === tgtId);
+      if (srcIdx === -1 || tgtIdx === -1) return;
+      const [item] = sorted.splice(srcIdx, 1);
+      const newTgt = sorted.findIndex(f => String(f.id) === tgtId);
+      sorted.splice(newTgt, 0, item);
+      sorted.forEach((f, i) => { f.order = i; });
+      persistFeatures();
+      renderMaster();
+      renderGrid();
+    }
+
+    function updateOrder(id, value) {
+      const f = findById(id);
+      if (!f) return;
+      f.order = Number(value) || 0;
+      persistFeatures();
+      renderMaster();
+      renderGrid();
+    }
+    function toggleVisible(id, val) {
+      const f = findById(id);
+      if (!f) return;
+      f.visible = !!val;
+      persistFeatures();
+      renderGrid();
+    }
+    function removeFeatureById(id) {
+      if (!confirm('Remove this feature?')) return;
+      const idx = idxById(id);
+      if (idx >= 0) features.splice(idx, 1);
+      persistFeatures();
+      renderMaster();
+      renderGrid();
+    }
+
+    function resetAll() {
+      if (!confirm('Reset all features to Locked and clear all purchase/activation data?')) return;
+      features.forEach(f => { f.status = 'Locked'; });
+      purchased = {};
+      purchaseDates = {};
+      activated = {};
+      persistFeatures();
+      persistPurchased();
+      localStorage.setItem(STORAGE_KEY + '_purchase_dates', JSON.stringify(purchaseDates));
+      persistActivated();
+      pendingActivation.clear();
+      renderMaster();
+      renderGrid();
+    }
+
+    // ============ FEATURE EDITOR ============
+    function openFeatureEditor(id) {
+      editorTargetId = id;
+      const isNew = !id;
+      document.getElementById('editorTitle').textContent = isNew ? 'Add Feature' : 'Edit Feature';
+      const f = isNew ? {
+        visible: true, type: 'free', cost: 0, code: 'FEAT_' + Date.now(),
+        title: '', desc: '', thumbnail: '', media: ''
+      } : findById(id);
+      if (!f) return;
+      document.getElementById('fVisible').checked = f.visible !== false;
+      document.querySelectorAll('input[name="fType"]').forEach(r => { r.checked = r.value === (f.type || 'free'); });
+      document.getElementById('fCost').value = f.cost || '';
+      document.getElementById('fCode').value = f.code || '';
+      document.getElementById('fName').value = f.title || '';
+      document.getElementById('fDesc').value = f.desc || '';
+      document.getElementById('fThumb').value = f.thumbnail || f.gif || '';
+      document.getElementById('fMedia').value = f.media || f.gif || '';
+      toggleCostField();
+      editorModal.classList.remove('hidden');
+      editorModal.classList.add('flex');
+    }
+    function closeFeatureEditor() {
+      editorModal.classList.add('hidden');
+      editorModal.classList.remove('flex');
+      editorTargetId = null;
+    }
+    function toggleCostField() {
+      const type = document.querySelector('input[name="fType"]:checked').value;
+      document.getElementById('fCostWrap').classList.toggle('hidden', type !== 'paid');
+    }
+    function saveFeatureEditor() {
+      const type = document.querySelector('input[name="fType"]:checked').value;
+      const data = {
+        visible: document.getElementById('fVisible').checked,
+        type,
+        cost: type === 'paid' ? Number(document.getElementById('fCost').value) || 0 : 0,
+        code: document.getElementById('fCode').value.trim(),
+        title: document.getElementById('fName').value.trim() || 'Untitled',
+        desc: document.getElementById('fDesc').value.trim(),
+        thumbnail: document.getElementById('fThumb').value.trim(),
+        media: document.getElementById('fMedia').value.trim()
+      };
+      if (editorTargetId) {
+        const f = findById(editorTargetId);
+        Object.assign(f, data);
+        f.gif = data.thumbnail || f.gif;
+      } else {
+        features.push({
+          id: 'f_' + Date.now(),
+          status: 'Locked',
+          gif: data.thumbnail,
+          order: features.length,
+          ...data
+        });
+      }
+      persistFeatures();
+      closeFeatureEditor();
+      renderMaster();
+      renderGrid();
+    }
+
+    // ============ APPS ============
+    function renderApps() {
+      appCarousel.innerHTML = '';
+      appsData.forEach((app, index) => {
+        const div = document.createElement('div');
+        div.className = 'app-card-4 shadow-sm hover:shadow-lg';
+        div.innerHTML = `
+          <div class="flex items-start gap-2 min-w-0">
+            <div class="logo-box">
+              <img src="${app.logo}" class="w-full h-full object-cover" alt="${app.name}">
+            </div>
+            <div class="flex flex-col min-w-0 justify-center h-14">
+              <span class="app-name truncate" contenteditable="${isEditing}" onblur="updateAppField(${index}, 'name', this.innerText)">${app.name}</span>
+              <span class="tag mt-1" contenteditable="${isEditing}" onblur="updateAppField(${index}, 'tag', this.innerText)">${app.tag}</span>
+            </div>
+          </div>
+          <p class="desc mt-3" contenteditable="${isEditing}" onblur="updateAppField(${index}, 'desc', this.innerText)">${app.desc}</p>
+          <div class="flex items-center gap-2">
+            <a href="${app.link}" class="view-btn flex-1">
+              View App <i class="fas fa-arrow-right text-[10px]"></i>
+            </a>
+            ${isEditing ? `<button onclick="removeApp(${index})" class="w-9 h-9 border border-red-100 text-red-500 rounded-lg flex items-center justify-center hover:bg-red-50 transition-colors shrink-0"><i class="fas fa-trash-alt text-xs"></i></button>` : ''}
+          </div>
+        `;
+        appCarousel.appendChild(div);
+      });
+    }
+
+    function updateAppField(index, field, value) { appsData[index][field] = value; }
+    function removeApp(index) { appsData.splice(index, 1); renderApps(); }
+    addAppBtn.onclick = () => {
+      appsData.push({ name: 'New App', tag: 'Marketing', desc: 'New application description goes here.', logo: 'https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=400', link: '#' });
+      renderApps();
+    };
+    function moveCarousel(dir) {
+      const cardWidth = appCarousel.firstElementChild.offsetWidth;
+      const gap = 24;
+      const maxScroll = appCarousel.scrollWidth - appCarousel.parentElement.offsetWidth;
+      carouselIndex = Math.max(0, Math.min(carouselIndex + dir * (cardWidth + gap), maxScroll));
+      appCarousel.style.transform = `translateX(-${carouselIndex}px)`;
+    }
+
+    function showPreview(container, gif) {
+      const animatedImg = container.querySelector('img[data-src]');
+      const placeholder = container.querySelector('.preview-placeholder');
+      if (!animatedImg || !placeholder || isEditing) return;
+      if (animatedImg.src !== gif) animatedImg.src = gif;
+      animatedImg.classList.remove('opacity-0');
+      placeholder.classList.add('opacity-0');
+    }
+    function hidePreview(container) {
+      const animatedImg = container.querySelector('img[data-src]');
+      const placeholder = container.querySelector('.preview-placeholder');
+      if (!animatedImg || !placeholder || isEditing) return;
+      animatedImg.classList.add('opacity-0');
+      animatedImg.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+      placeholder.classList.remove('opacity-0');
+    }
+
+    function updateField(index, field, value) {
+      if (!features[index]) return;
+      features[index][field] = value;
+      if (field === 'status') renderGrid();
+    }
+    function removeCard(index) { features.splice(index, 1); persistFeatures(); renderGrid(); }
+
+    function openModal(gif, title) {
+      modalImg.src = gif;
+      modalHeader.innerHTML = `<span>${title}</span>`;
+      previewModal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+
+    function toggleTooltip(el) {
+      if (!isEditing) return;
+      const box = el.nextElementSibling;
+      const isActive = box.classList.contains('active');
+      document.querySelectorAll('.tooltip-box').forEach(b => b.classList.remove('active'));
+      if (!isActive) box.classList.add('active');
+    }
+
+    function closeModal() {
+      previewModal.classList.add('hidden');
+      modalImg.src = '';
+      document.body.style.overflow = '';
+    }
+
+    editBtn.onclick = () => {
+      isEditing = true;
+      document.body.classList.add('editing');
+      editBtn.classList.add('hidden');
+      saveBtn.classList.remove('hidden');
+      addCardBtn.classList.remove('hidden');
+      addAppBtn.classList.remove('hidden');
+      recAppsTitle.contentEditable = true;
+      recAppsSub.contentEditable = true;
+      featureRequestText.contentEditable = true;
+      renderGrid();
+      renderApps();
+    };
+
+    saveBtn.onclick = () => {
+      isEditing = false;
+      document.body.classList.remove('editing');
+      editBtn.classList.remove('hidden');
+      saveBtn.classList.add('hidden');
+      addCardBtn.classList.add('hidden');
+      addAppBtn.classList.add('hidden');
+      recAppsTitle.contentEditable = false;
+      recAppsSub.contentEditable = false;
+      featureRequestText.contentEditable = false;
+      persistFeatures();
+      localStorage.setItem(STORAGE_KEY + '_apps', JSON.stringify(appsData));
+      renderGrid();
+      renderApps();
+    };
+
+    addCardBtn.onclick = () => openFeatureEditor(null);
+
+    renderGrid();
+    renderApps();
+
+    scaleInput.addEventListener('blur', () => {
+      currentScale = Math.max(80, Math.min(100, Number(scaleInput.value) || 100));
+      scaleInput.value = currentScale;
+      renderGrid();
+    });
+
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeModal(); closeBuyModal(); closeUnsubModal(); closeFeatureEditor(); } });
+  </script>
+  <link rel="stylesheet" href="polaris.css">
+</body>
+</html>
